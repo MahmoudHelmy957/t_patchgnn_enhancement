@@ -1,0 +1,23 @@
+search for the srp timellm folder
+source /home/helmy/srp_project/Timellm/SRP_WORLD/bin/activate
+go back to t-patchgnn
+
+
+###  to understand the conda world ###
+1) to install the base system:
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh  # install to ~/miniconda3
+
+** here we will accept all and write yes at the end to initialize the base conda once opened the terminal
+and when you open your terminal you will find (base) next to your id
+
+2) install your custom conda env:
+conda create -n condaworld{or put any name} python=3.9{or use any version} -y{instead of writing answer "yes" on questions}
+conda activate condaworld
+
+3) to manage and check env create by conda:
+conda env list
+
+
+
+
