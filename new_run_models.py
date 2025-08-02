@@ -128,6 +128,7 @@ if __name__ == '__main__':
             train_res = compute_all_losses(model, batch_dict)
             train_res["loss"].backward()
             optimizer.step()
+            
 
         ### Validation ###
         model.eval()
