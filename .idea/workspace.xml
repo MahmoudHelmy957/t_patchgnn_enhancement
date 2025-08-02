@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b468b5b4-e13a-4ba2-ae31-ce2217a95b24" name="Changes" comment="first code working proc" />
+    <list default="true" id="b468b5b4-e13a-4ba2-ae31-ce2217a95b24" name="Changes" comment="first code working proc">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -73,8 +75,8 @@
       <window_info id="Commit_Guest" show_stripe_button="false" />
       <window_info id="Pull Requests" show_stripe_button="false" />
       <window_info id="Learn" show_stripe_button="false" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3335073" />
-      <window_info id="Commit" order="1" side_tool="true" weight="0.33307046" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.28144172" visible="true" weight="0.3335073" />
+      <window_info active="true" id="Commit" order="1" sideWeight="0.7185583" side_tool="true" visible="true" weight="0.3335073" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.33307046" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info anchor="bottom" id="TypeScript" show_stripe_button="false" />
@@ -130,7 +132,7 @@
       <workItem from="1752393896085" duration="9681000" />
       <workItem from="1752403772707" duration="18126000" />
       <workItem from="1752667898724" duration="5438000" />
-      <workItem from="1754140947729" duration="5066000" />
+      <workItem from="1754140947729" duration="6138000" />
     </task>
     <task id="LOCAL-00001" summary="first code working proc">
       <option name="closed" value="true" />
@@ -140,7 +142,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752599601685</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="first code working proc">
+      <option name="closed" value="true" />
+      <created>1754146432641</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1754146432641</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
