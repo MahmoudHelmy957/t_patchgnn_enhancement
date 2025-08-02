@@ -14,9 +14,9 @@ from lib.utils import get_device
 class PhysioNet(object):
 
 	urls = [
-		'https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz?download',
-		'https://physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz?download',
-		'https://physionet.org/files/challenge-2012/1.0.0/set-c.tar.gz?download',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-c.tar.gz',
 	]
 
 	params = [
@@ -33,6 +33,7 @@ class PhysioNet(object):
 
 	def __init__(self, root, download = False,
 		quantization = None, n_samples = None, device = torch.device("cpu")):
+
 
 		self.root = root
 		self.reduce = "average"
@@ -70,7 +71,7 @@ class PhysioNet(object):
 
 		for url in self.urls:
 			filename = url.rpartition('/')[2]
-			download_url(url, self.raw_folder, filename, None)
+			# download_url(url, self.raw_folder, filename, None)
 			tar = tarfile.open(os.path.join(self.raw_folder, filename), "r:gz")
 			tar.extractall(self.raw_folder)
 			tar.close()
@@ -411,9 +412,9 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 	
 	return data_dict
 
-if __name__ == '__main__':
-	torch.manual_seed(1991)
-
-	dataset = PhysioNet('../data/physionet', train=False, download=True)
-	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
-	print(dataloader.__iter__().next())
+# if __name__ == '__main__':
+# 	torch.manual_seed(1991)
+#
+# 	dataset = PhysioNet('../data/physionet', train=False, download=True)
+# 	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
+# 	print(dataloader.__iter__().next())

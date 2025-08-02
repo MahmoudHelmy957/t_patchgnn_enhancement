@@ -3,8 +3,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.Transformer_EncDec import Encoder, EncoderLayer
-from model.SelfAttention_Family import FullAttention, AttentionLayer
+from tPatchGNN.model.Transformer_EncDec import Encoder, EncoderLayer
+from tPatchGNN.model.SelfAttention_Family import FullAttention, AttentionLayer
 
 import lib.utils as utils
 from lib.evaluation import *
@@ -85,7 +85,7 @@ class tPatchGNN(nn.Module):
 	def __init__(self, args, supports = None, dropout = 0):
 	
 		super(tPatchGNN, self).__init__()
-		self.device = args.device
+		# self.device = args.device
 		self.hid_dim = args.hid_dim
 		self.N = args.ndim
 		self.M = args.npatch
@@ -128,9 +128,9 @@ class tPatchGNN(nn.Module):
 		if supports is None:
 			self.supports = []
 
-		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim).cuda(), requires_grad=True)
-		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N).cuda(), requires_grad=True)
-
+		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim), requires_grad=True)
+		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N), requires_grad=True)
+		# with self.nodevec1, nodevec2 .cuda()
 		self.nodevec_linear1 = nn.ModuleList()
 		self.nodevec_linear2 = nn.ModuleList()
 		self.nodevec_gate1 = nn.ModuleList()
