@@ -5,4 +5,6 @@ start_session.txt
 .repoproject/
 .vscode/
 data/physionet/processed/
-data/physionet/raw/set*
+data/physionet/raw/set-a/
+data/physionet/raw/set-b/
+data/physionet/raw/set-c/
