@@ -1,3 +1,5 @@
+# pyright: reportOptionalSubscript=false
+# pyright: reportPossiblyUnboundVariable=false
 import os
 import sys
 sys.path.append("..")
@@ -6,18 +8,18 @@ import time
 import datetime
 import argparse
 import numpy as np
-import random
+# import random
 from random import SystemRandom
-from sklearn import model_selection
+# from sklearn import model_selection
 
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 import torch.optim as optim
 
 import lib.utils as utils
 from lib.parse_datasets import parse_datasets
-from new_model.tpatchgnn import tPatchGNN   # <-- new modular wrapper
-
+from tPatchGNN.new_model.tpatchgnn import tPatchGNN   # <-- new modular wrapper
+from lib.evaluation import compute_all_losses,evaluation
 
 parser = argparse.ArgumentParser('IMTS Forecasting')
 
