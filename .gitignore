@@ -2,3 +2,7 @@ logs/
 home/helmy/tpathgnn_world/
 .idea/
 start_session.txt
+.repoproject/
+.vscode/
+data/physionet/processed/
+data/physionet/raw/set*

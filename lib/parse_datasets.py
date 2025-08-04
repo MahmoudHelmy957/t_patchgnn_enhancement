@@ -29,10 +29,10 @@ def parse_datasets(args, patch_ts=False, length_stat=False):
 
 		### list of tuples (record_id, tt, vals, mask) ###
 		if dataset_name == "physionet":
-			total_dataset = PhysioNet('../data/physionet', quantization = args.quantization,
+			total_dataset = PhysioNet('./data/physionet', quantization = args.quantization,
 											download=True, n_samples = args.n, device = device)
 		elif dataset_name == "mimic":
-			total_dataset = MIMIC('../data/mimic/', n_samples = args.n, device = device)
+			total_dataset = MIMIC('./data/mimic/', n_samples = args.n, device = device)
 
 		# Shuffle and split
 		seen_data, test_data = model_selection.train_test_split(total_dataset, train_size= 0.8, random_state = 42, shuffle = True)

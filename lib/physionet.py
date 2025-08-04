@@ -14,9 +14,9 @@ from lib.utils import get_device
 class PhysioNet(object):
 
 	urls = [
-		'https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz?download',
-		'https://physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz?download',
-		'https://physionet.org/files/challenge-2012/1.0.0/set-c.tar.gz?download',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-c.tar.gz',
 	]
 
 	params = [
@@ -249,9 +249,9 @@ def get_data_min_max(records, device):
 
 		time_max = torch.max(time_max, tt.max())
 
-	print('data_max:', data_max)
-	print('data_min:', data_min)
-	print('time_max:', time_max)
+	# print('data_max:', data_max)
+	# print('data_min:', data_min)
+	# print('time_max:', time_max)
 
 	return data_min, data_max, time_max
 
@@ -414,6 +414,6 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 if __name__ == '__main__':
 	torch.manual_seed(1991)
 
-	dataset = PhysioNet('../data/physionet', train=False, download=True)
+	dataset = PhysioNet('./data/physionet', train=False, download=True)
 	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
 	print(dataloader.__iter__().next())
