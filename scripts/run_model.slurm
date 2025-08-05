@@ -15,7 +15,7 @@ python run_models.py \
 --state 'def' \
 --history 12 \
 --patience 10 \
---batch_size 16 \
+--batch_size 24 \
 --lr 1e-3 \
 --patch_size 8 \
 --stride 8 \
@@ -24,7 +24,7 @@ python run_models.py \
 --nlayer 1 \
 --te_dim 10 \
 --node_dim 10 \
---hid_dim 16 \
+--hid_dim 32 \
 --outlayer Linear \
 --gpu $gpu
 #--seed $seed \
