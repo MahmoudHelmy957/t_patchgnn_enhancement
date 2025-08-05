@@ -276,7 +276,14 @@ def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), da
 	Expects a batch of time series data in the form of (record_id, tt, vals, mask) where
 		- record_id is a patient id
 		- tt is a (T, ) tensor containing T time values of observations.
+		ex: tt = [0.0, 0.7, 2.0, 3.5] 
 		- vals is a (T, D) tensor containing observed values for D variables.
+		vals =
+		[[80, 120],    # t=0.0 → HR=80, BP=120
+		[82, 118],    # t=0.7 → HR=82, BP=118
+		[85, 122],    # t=2.0 → HR=85, BP=122
+		[90, 125]]    # t=3.5 → HR=90, BP=125
+		# shape (4,2) (columns are features)
 		- mask is a (T, D) tensor containing 1 where values were observed and 0 otherwise.
 	Returns:
 	Data form as input:
@@ -289,57 +296,89 @@ def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), da
 		flat_mask: (B, L_out, D) tensor containing 1 where values were observed and 0 otherwise.
 	"""
 
-	D = batch[0][2].shape[1]
+	D = batch[0][2].shape[1] # Dimensionality of variables (features)
+ 	# === Step 1: Combine all time points across the batch ===
+    # Merge all time stamps from all samples, sort, and get unique indices
 	combined_tt, inverse_indices = torch.unique(torch.cat([ex[1] for ex in batch]), sorted=True, return_inverse=True)
 
+    # === Step 2: Separate observed vs prediction times ===
+    # Count how many time points fall before the observation window (args.history)
 	# the number of observed time points 
-	n_observed_tp = torch.lt(combined_tt, args.history).sum()
-	observed_tp = combined_tt[:n_observed_tp] # (n_observed_tp, )
+	n_observed_tp = torch.lt(combined_tt, args.history).sum() #[true,false,...]
+	observed_tp = combined_tt[:n_observed_tp] # (n_observed_tp, ) 
+	# here we cut based on the history value to form the observed time points
+	
 
+	# === Step 3: Compute patch indices for observed timeline ===
+    # Hard segmentation: divide timeline into patches of length args.patch_size, moving with stride
 	patch_indices = []
 	st, ed = 0, args.patch_size
-	for i in range(args.npatch):
+	for i in range(args.npatch): # loop over number of patches we want to create
 		if(i == args.npatch-1):
+			# For the LAST patch:
+        	# include time steps where observed_tp is in [st, ed] (inclusive of ed)
 			inds = torch.where((observed_tp >= st) & (observed_tp <= ed))[0]
 		else:
+			# For all OTHER patches:
+        	# include time steps where observed_tp is in [st, ed) (exclusive of ed)
 			inds = torch.where((observed_tp >= st) & (observed_tp < ed))[0]
-		patch_indices.append(inds)
+
+		# save indices for this patch
+		patch_indices.append(inds) # here we are trying to get indices of the observed time points
+		# Slide the window forward by stride
 		st += args.stride
 		ed += args.stride
 
-	offset = 0
+	
+	# === Step 4: Allocate unified value and mask arrays ===
 	combined_vals = torch.zeros([len(batch), len(combined_tt), D]).to(device)
 	combined_mask = torch.zeros([len(batch), len(combined_tt), D]).to(device)
-	predicted_tp = []
-	predicted_data = []
-	predicted_mask = [] 
+
+	# Also keep placeholders for prediction target sequences
+	predicted_tp = []      # will hold each patient's prediction time steps
+	predicted_data = []    # will hold each patient's prediction values
+	predicted_mask = []    # will hold each patient's prediction masks
+	offset = 0
+	
+	# === Step 5: Populate combined tensors for each sample ===
 	for b, (record_id, tt, vals, mask) in enumerate(batch):
+
+    # ---- Align local time points to the global timeline ----
+    # inverse_indices tells us where each timestamp of this sample falls in combined_tt
+    # Here we extract the slice for this sample
+		#  Map each sample’s local time indices to the global combined_tt indices
 		indices = inverse_indices[offset:offset+len(tt)]
 		offset += len(tt)
+		# Place values and masks into the global tensors
 		combined_vals[b, indices] = vals
 		combined_mask[b, indices] = mask
-
+		# Split each sample into observed part vs prediction part
 		tmp_n_observed_tp = torch.lt(tt, args.history).sum()
 		predicted_tp.append(tt[tmp_n_observed_tp:])
 		predicted_data.append(vals[tmp_n_observed_tp:])
 		predicted_mask.append(mask[tmp_n_observed_tp:])
 
+
+	# === Step 6: Truncate global tensors to only observed portion ===
 	combined_tt = combined_tt[:n_observed_tp]
 	combined_vals = combined_vals[:, :n_observed_tp]
 	combined_mask = combined_mask[:, :n_observed_tp]
+	# Pad the predicted tensors to ensure they have the same length across the batch
 	predicted_tp = pad_sequence(predicted_tp, batch_first=True)
 	predicted_data = pad_sequence(predicted_data, batch_first=True)
 	predicted_mask = pad_sequence(predicted_mask, batch_first=True)
 
+	# === Step 7: Normalize values (if dataset requires it) ===
 	if(args.dataset != 'ushcn'):
 		combined_vals = utils.normalize_masked_data(combined_vals, combined_mask, 
 			att_min = data_min, att_max = data_max)
 		predicted_data = utils.normalize_masked_data(predicted_data, predicted_mask, 
 			att_min = data_min, att_max = data_max)
-
+	# Normalize time axis to [0, time_max]
 	combined_tt = utils.normalize_masked_tp(combined_tt, att_min = 0, att_max = time_max)
 	predicted_tp = utils.normalize_masked_tp(predicted_tp, att_min = 0, att_max = time_max)
-		
+
+	# === Step 8: Package into dictionary ===	
 	data_dict = {
 		"data": combined_vals, # (n_batch, T_o, D)
 		"time_steps": combined_tt, # (T_o, )
@@ -348,7 +387,8 @@ def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), da
 		"tp_to_predict": predicted_tp,
 		"mask_predicted_data": predicted_mask,
 		}
-
+	# === Step 9: Split observed sequence into patches ===
+    # This function handles creating (B, M, L_in, D) patch tensors
 	data_dict = utils.split_and_patch_batch(data_dict, args, n_observed_tp, patch_indices)
 
 	return data_dict
