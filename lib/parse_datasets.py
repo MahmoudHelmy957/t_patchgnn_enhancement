@@ -13,6 +13,7 @@ from lib.physionet import *
 from lib.ushcn import *
 from lib.mimic import MIMIC
 from lib.person_activity import *
+from lib.test_adaptivepatching import split_and_patch_batch_tapa
 from sklearn import model_selection
 
 
@@ -51,6 +52,7 @@ def parse_datasets(args, patch_ts=False, length_stat=False):
 
 		if(patch_ts):
 			collate_fn = patch_variable_time_collate_fn
+			# collate_fn = split_and_patch_batch_tapa
 		else:
 			collate_fn = variable_time_collate_fn
 
