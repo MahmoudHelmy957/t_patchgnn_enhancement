@@ -1,18 +1,11 @@
 import os
 import logging
 import pickle
-
+import sys
 import torch
 import torch.nn as nn
 import numpy as np
-import pandas as pd
-import math 
-import glob
-import re
-from shutil import copyfile
 import sklearn as sk
-import subprocess
-import datetime
 import random
 
 def setup_seed(seed):
@@ -22,7 +15,7 @@ def setup_seed(seed):
 	np.random.seed(seed)
 	random.seed(seed)
 	torch.backends.cudnn.deterministic = True
-    
+
 
 def makedirs(dirname):
 	if not os.path.exists(dirname):
@@ -35,31 +28,51 @@ def save_checkpoint(state, save, epoch):
 	filename = os.path.join(save, 'checkpt-%04d.pth' % epoch)
 	torch.save(state, filename)
 
-	
+
 def get_logger(logpath, filepath, package_files=[],
-			   displaying=True, saving=True, debug=False, mode='a'):
-	logger = logging.getLogger()
-	if debug:
-		level = logging.DEBUG
-	else:
-		level = logging.INFO
-	logger.setLevel(level)
-	if saving:
-		info_file_handler = logging.FileHandler(logpath, mode=mode)
-		info_file_handler.setLevel(level)
-		logger.addHandler(info_file_handler)
-	if displaying:
-		console_handler = logging.StreamHandler()
-		console_handler.setLevel(level)
-		logger.addHandler(console_handler)
-	logger.info(filepath)
+               displaying=True, saving=True, debug=False, mode='a'):
+    logger = logging.getLogger()
+    logger.handlers.clear()  # reset to avoid duplicate logs
 
-	for f in package_files:
-		logger.info(f)
-		with open(f, 'r') as package_f:
-			logger.info(package_f.read())
+    if debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logger.setLevel(level)
 
-	return logger
+    # === File handler (all logs go here) ===
+    if saving:
+        info_file_handler = logging.FileHandler(logpath, mode=mode)
+        info_file_handler.setLevel(level)
+        file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        info_file_handler.setFormatter(file_formatter)
+        logger.addHandler(info_file_handler)
+
+    if displaying:
+        # === STDOUT handler (INFO and below) ===
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(logging.DEBUG if debug else logging.INFO)
+        stdout_handler.addFilter(lambda record: record.levelno < logging.ERROR)
+        out_formatter = logging.Formatter('%(asctime)s - %(message)s')
+        stdout_handler.setFormatter(out_formatter)
+        logger.addHandler(stdout_handler)
+
+        # === STDERR handler (ERROR and above) ===
+        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler.setLevel(logging.ERROR)
+        err_formatter = logging.Formatter('%(asctime)s - ERROR - %(message)s')
+        stderr_handler.setFormatter(err_formatter)
+        logger.addHandler(stderr_handler)
+
+    logger.info(filepath)
+
+    for f in package_files:
+        logger.info(f)
+        with open(f, 'r') as package_f:
+            logger.info(package_f.read())
+
+    return logger
+
 
 
 def inf_generator(iterable):
@@ -137,7 +150,7 @@ def subsample_timepoints(data, time_steps, mask, n_tp_to_sample = None):
 			data[i, missing_idx] = 0.
 			if mask is not None:
 				mask[i, missing_idx] = 0.
-	
+
 	elif (n_tp_to_sample <= 1) and (n_tp_to_sample > 0):
 		# Subsample percentage of points from each time series
 		percentage_tp_to_sample = n_tp_to_sample
@@ -212,7 +225,7 @@ def split_train_test_data_and_time(data, time_steps, train_fraq = 0.8):
 def get_next_batch(dataloader):
 	# Make the union of all time points and perform normalization across the whole dataset
 	data_dict = dataloader.__next__()
-	
+
 	return data_dict
 
 def get_ckpt_model(ckpt_path, model, device):
@@ -227,7 +240,7 @@ def get_ckpt_model(ckpt_path, model, device):
 	# 1. filter out unnecessary keys
 	state_dict = {k: v for k, v in state_dict.items() if k in model_dict}
 	# 2. overwrite entries in the existing state dict
-	model_dict.update(state_dict) 
+	model_dict.update(state_dict)
 	# 3. load the new state dict
 	model.load_state_dict(state_dict)
 	model.to(device)
@@ -252,7 +265,7 @@ def linspace_vector(start, end, n_points):
 		# start and end are vectors
 		res = torch.Tensor()
 		for i in range(0, start.size(0)):
-			res = torch.cat((res, 
+			res = torch.cat((res,
 				torch.linspace(start[i], end[i], n_points)),0)
 		res = torch.t(res.reshape(start.size(0), n_points))
 	return res
@@ -262,7 +275,7 @@ def reverse(tensor):
 	return tensor[idx]
 
 
-def create_net(n_inputs, n_outputs, n_layers = 1, 
+def create_net(n_inputs, n_outputs, n_layers = 1,
 	n_units = 100, nonlinear = nn.Tanh):
 	layers = [nn.Linear(n_inputs, n_units)]
 	for i in range(n_layers):
@@ -315,12 +328,12 @@ def normalize_masked_data(data, mask, att_min, att_max):
 	scale = att_max - att_min
 	scale = scale + (scale == 0) * 1e-8
 	# we don't want to divide by zero
-	if (scale != 0.).all(): 
+	if (scale != 0.).all():
 		data_norm = (data - att_min) / scale
 	else:
 		raise Exception("Zero!")
 
-	# set masked out elements back to zero 
+	# set masked out elements back to zero
 	data_norm[mask == 0] = 0
 
 	if torch.isnan(data_norm).any():
@@ -360,7 +373,7 @@ def split_and_patch_batch(data_dict, args, n_observed_tp, patch_indices):
 			"data_to_predict": data_dict["data_to_predict"].clone(),
 			"mask_predicted_data": data_dict["mask_predicted_data"].clone()
 			}
-	
+
 	observed_tp = data_dict["time_steps"].clone() # (n_observed_tp, )
 	observed_data = data_dict["data"].clone() # (bs, n_observed_tp, D)
 	observed_mask = data_dict["mask"].clone() # (bs, n_observed_tp, D)
@@ -389,7 +402,7 @@ def split_and_patch_batch(data_dict, args, n_observed_tp, patch_indices):
 		observed_mask_patches_fill[:, i, st_ind:ed_ind+1] = observed_mask[:, st_ind:ed_ind+1, :]
 		L = observed_mask[:, st_ind:ed_ind+1, :].sum(dim=1, keepdim=True) # (bs, 1, D)
 		observed_mask_patches_fill_reindex[:, i] = (aux_tensor < L)  # let first L[i] to be True
-	
+
 	### return a indices tuple like ([...], [...], [...], [...])
 	mask_inds = torch.nonzero(observed_mask_patches_fill_reindex.permute(0,1,3,2), as_tuple=True) # reset indices
 	ind_values = torch.nonzero(observed_mask_patches_fill.permute(0,1,3,2), as_tuple=True)[-1] # original indices of dimension 2
@@ -401,10 +414,10 @@ def split_and_patch_batch(data_dict, args, n_observed_tp, patch_indices):
 	observed_tp_patches = torch.cat([observed_tp_patches, pad_zeros_data], dim=2).gather(2, patch_indices_fianl) # (n_batch, npatch, max_patch_len, n_dim)
 	observed_data_patches = torch.cat([observed_data_patches, pad_zeros_data], dim=2).gather(2, patch_indices_fianl)
 	observed_mask_patches = torch.cat([observed_mask_patches, pad_zeros_data], dim=2).gather(2, patch_indices_fianl)
-	
+
 	split_dict["observed_tp"] = observed_tp_patches
 	split_dict["observed_data"] = observed_data_patches
-	split_dict["observed_mask"] = observed_mask_patches 
+	split_dict["observed_mask"] = observed_mask_patches
 
 	return split_dict
 
@@ -415,9 +428,9 @@ def split_data_forecast(data_dict, dataset, n_observed_tp):
 				"data_to_predict": data_dict["data"][:,n_observed_tp:,:].clone(),
 				"tp_to_predict": data_dict["time_steps"][n_observed_tp:].clone()}
 
-	split_dict["observed_mask"] = None 
-	split_dict["mask_predicted_data"] = None 
-	split_dict["labels"] = None 
+	split_dict["observed_mask"] = None
+	split_dict["mask_predicted_data"] = None
+	split_dict["labels"] = None
 
 	if ("mask" in data_dict) and (data_dict["mask"] is not None):
 		split_dict["observed_mask"] = data_dict["mask"][:, :n_observed_tp].clone()
@@ -434,9 +447,9 @@ def split_data_interp(data_dict):
 				"data_to_predict": data_dict["data"].clone(),
 				"tp_to_predict": data_dict["time_steps"].clone()}
 
-	split_dict["observed_mask"] = None 
-	split_dict["mask_predicted_data"] = None 
-	split_dict["labels"] = None 
+	split_dict["observed_mask"] = None
+	split_dict["mask_predicted_data"] = None
+	split_dict["labels"] = None
 
 	if "mask" in data_dict and data_dict["mask"] is not None:
 		split_dict["observed_mask"] = data_dict["mask"].clone()
@@ -466,16 +479,16 @@ def subsample_observed_data(data_dict, n_tp_to_sample = None, n_points_to_cut = 
 	if n_tp_to_sample is not None:
 		# Randomly subsample time points
 		data, time_steps, mask = subsample_timepoints(
-			data_dict["observed_data"].clone(), 
-			time_steps = data_dict["observed_tp"].clone(), 
+			data_dict["observed_data"].clone(),
+			time_steps = data_dict["observed_tp"].clone(),
 			mask = (data_dict["observed_mask"].clone() if data_dict["observed_mask"] is not None else None),
 			n_tp_to_sample = n_tp_to_sample)
 
 	if n_points_to_cut is not None:
 		# Remove consecutive time points
 		data, time_steps, mask = cut_out_timepoints(
-			data_dict["observed_data"].clone(), 
-			time_steps = data_dict["observed_tp"].clone(), 
+			data_dict["observed_data"].clone(),
+			time_steps = data_dict["observed_tp"].clone(),
 			mask = (data_dict["observed_mask"].clone() if data_dict["observed_mask"] is not None else None),
 			n_points_to_cut = n_points_to_cut)
 
@@ -510,7 +523,7 @@ def split_and_subsample_batch(data_dict, args, n_observed_tp):
 def compute_loss_all_batches(model,
 	test_dataloader, args,
 	n_batches, experimentID, device,
-	n_traj_samples = 1, kl_coef = 1., 
+	n_traj_samples = 1, kl_coef = 1.,
 	max_samples_for_eval = None):
 
 	total = {}
@@ -523,12 +536,12 @@ def compute_loss_all_batches(model,
 	total["ce_loss"] = 0
 
 	n_test_samples = 0
-	
+
 	classif_predictions = torch.Tensor([]).to(device)
 	all_test_labels =  torch.Tensor([]).to(device)
 
 	for i in range(n_batches):
-		
+
 		batch_dict = get_next_batch(test_dataloader)
 		bs = batch_dict["observed_data"].shape[0]
 
@@ -539,12 +552,12 @@ def compute_loss_all_batches(model,
 			n_labels = model.n_labels #batch_dict["labels"].size(-1)
 			n_traj_samples = results["label_predictions"].size(0)
 
-			classif_predictions = torch.cat((classif_predictions, 
+			classif_predictions = torch.cat((classif_predictions,
 				results["label_predictions"].reshape(n_traj_samples, -1, n_labels)),1)
-			all_test_labels = torch.cat((all_test_labels, 
+			all_test_labels = torch.cat((all_test_labels,
 				batch_dict["labels"].reshape(-1, n_labels)),0)
 
-		for key in total.keys(): 
+		for key in total.keys():
 			if key in results:
 				var = results[key]
 				if isinstance(var, torch.Tensor):
@@ -561,7 +574,7 @@ def compute_loss_all_batches(model,
 	if n_test_samples > 0:
 		for key, value in total.items():
 			total[key] = total[key] / n_test_samples
- 
+
 	if args.classif:
 		if args.dataset == "physionet":
 			#all_test_labels = all_test_labels.reshape(-1)
@@ -575,18 +588,18 @@ def compute_loss_all_batches(model,
 
 			dirname = "plots/" + str(experimentID) + "/"
 			os.makedirs(dirname, exist_ok=True)
-			
+
 			total["auc"] = 0.
 			if torch.sum(all_test_labels) != 0.:
 				print("Number of labeled examples: {}".format(len(all_test_labels.reshape(-1))))
 				print("Number of examples with mortality 1: {}".format(torch.sum(all_test_labels == 1.)))
 
 				# Cannot compute AUC with only 1 class
-				total["auc"] = sk.metrics.roc_auc_score(all_test_labels.cpu().numpy().reshape(-1), 
+				total["auc"] = sk.metrics.roc_auc_score(all_test_labels.cpu().numpy().reshape(-1),
 					classif_predictions.cpu().numpy().reshape(-1))
 			else:
 				print("Warning: Couldn't compute AUC -- all examples are from the same class")
-		
+
 		if args.dataset == "activity":
 			all_test_labels = all_test_labels.repeat(n_traj_samples,1,1)
 
@@ -599,10 +612,10 @@ def compute_loss_all_batches(model,
 			_, pred_class_id = torch.max(classif_predictions, -1)
 			_, class_labels = torch.max(all_test_labels, -1)
 
-			pred_class_id = pred_class_id.reshape(-1) 
+			pred_class_id = pred_class_id.reshape(-1)
 
 			total["accuracy"] = sk.metrics.accuracy_score(
-					class_labels.cpu().numpy(), 
+					class_labels.cpu().numpy(),
 					pred_class_id.cpu().numpy())
 	return total
 
@@ -616,8 +629,3 @@ def check_mask(data, mask):
 
 	# all masked out elements should be zeros
 	assert(torch.sum(data[mask == 0.] != 0.) == 0)
-
-
-
-
-

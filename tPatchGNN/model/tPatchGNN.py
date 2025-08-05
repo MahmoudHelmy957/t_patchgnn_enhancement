@@ -1,15 +1,22 @@
+# pyright: reportOptionalSubscript=false
+# pyright: reportPossiblyUnboundVariable=false
 import math
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+<<<<<<< HEAD
 from tPatchGNN.model.Transformer_EncDec import Encoder, EncoderLayer
 from tPatchGNN.model.SelfAttention_Family import FullAttention, AttentionLayer
+=======
+# from tPatchGNN.model.Transformer_EncDec import Encoder, EncoderLayer
+# from tPatchGNN.model.SelfAttention_Family import FullAttention, AttentionLayer
+>>>>>>> mahmoud_code_understanding
 
 import lib.utils as utils
 from lib.evaluation import *
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class nconv(nn.Module):
 	def __init__(self):
@@ -30,10 +37,9 @@ class linear(nn.Module):
 
 	def forward(self, x):
 		# x (B, F, N, M)
-
 		# return self.mlp(x.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)
 		return self.mlp(x)
-		
+
 class gcn(nn.Module):
 	def __init__(self, c_in, c_out, dropout, support_len=3, order=2):
 		super(gcn,self).__init__()
@@ -60,14 +66,14 @@ class gcn(nn.Module):
 		h = self.mlp(h)
 		return F.relu(h)
 
-class PositionalEncoding(nn.Module):
-
+class PositionalEncoding(nn.Module): # not learnable
+# here I can change it into learnable positional encoding
     def __init__(self, d_model, max_len=512):
         """
         :param d_model: dimension of model
         :param max_len: max sequence length
         """
-        super(PositionalEncoding, self).__init__()       
+        super(PositionalEncoding, self).__init__()
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
@@ -79,11 +85,11 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
         x = x + self.pe[:, :x.size(1), :]
         return x
-	
+
 
 class tPatchGNN(nn.Module):
 	def __init__(self, args, supports = None, dropout = 0):
-	
+
 		super(tPatchGNN, self).__init__()
 		# self.device = args.device
 		self.hid_dim = args.hid_dim
@@ -93,7 +99,7 @@ class tPatchGNN(nn.Module):
 		self.supports = supports
 		self.n_layer = args.nlayer
 
-		### Intra-time series modeling ## 
+		### Intra-time series modeling ##
 		## Time embedding
 		self.te_scale = nn.Linear(1, 1)
 		self.te_periodic = nn.Linear(1, args.te_dim-1)
@@ -109,14 +115,14 @@ class tPatchGNN(nn.Module):
 				nn.ReLU(inplace=True),
 				nn.Linear(ttcn_dim, input_dim*ttcn_dim, bias=True))
 		self.T_bias = nn.Parameter(torch.randn(1, ttcn_dim))
-		
+
 		d_model = args.hid_dim
 		## Transformer
-		self.ADD_PE = PositionalEncoding(d_model) 
+		self.ADD_PE = PositionalEncoding(d_model)
 		self.transformer_encoder = nn.ModuleList()
 		for _ in range(self.n_layer):
 			encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=args.nhead, batch_first=True)
-			self.transformer_encoder.append(nn.TransformerEncoder(encoder_layer, num_layers=args.tf_layer))			
+			self.transformer_encoder.append(nn.TransformerEncoder(encoder_layer, num_layers=args.tf_layer))
 
 		### Inter-time series modeling ###
 		self.supports_len = 0
@@ -129,8 +135,14 @@ class tPatchGNN(nn.Module):
 			self.supports = []
 
 		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim), requires_grad=True)
+<<<<<<< HEAD
 		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N), requires_grad=True)
 		# with self.nodevec1, nodevec2 .cuda()
+=======
+		#.cuda()
+		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N), requires_grad=True)
+		#.cuda()
+>>>>>>> mahmoud_code_understanding
 		self.nodevec_linear1 = nn.ModuleList()
 		self.nodevec_linear2 = nn.ModuleList()
 		self.nodevec_gate1 = nn.ModuleList()
@@ -146,7 +158,7 @@ class tPatchGNN(nn.Module):
 				nn.Linear(args.hid_dim+nodevec_dim, 1),
 				nn.Tanh(),
 				nn.ReLU()))
-			
+
 		self.supports_len +=1
 
 		self.gconv = nn.ModuleList() # gragh conv
@@ -159,7 +171,7 @@ class tPatchGNN(nn.Module):
 		if(self.outlayer == "Linear"):
 			self.temporal_agg = nn.Sequential(
 				nn.Linear(args.hid_dim*self.M, enc_dim))
-		
+
 		elif(self.outlayer == "CNN"):
 			self.temporal_agg = nn.Sequential(
 				nn.Conv1d(d_model, enc_dim, kernel_size=self.M))
@@ -172,13 +184,13 @@ class tPatchGNN(nn.Module):
 			nn.ReLU(inplace=True),
 			nn.Linear(args.hid_dim, 1)
 			)
-		
+
 	def LearnableTE(self, tt):
 		# tt: (N*M*B, L, 1)
 		out1 = self.te_scale(tt)
 		out2 = torch.sin(self.te_periodic(tt))
 		return torch.cat([out1, out2], -1)
-	
+
 	def TTCN(self, X_int, mask_X):
 		# X_int: shape (B*N*M, L, F)
 		# mask_X: shape (B*N*M, L, 1)
@@ -213,7 +225,7 @@ class tPatchGNN(nn.Module):
 
 			if(layer > 0): # residual
 				x_last = x.clone()
-				
+
 			### Transformer for temporal modeling ###
 			x = x.reshape(B*N, M, -1) # (B*N, M, F)
 			x = self.ADD_PE(x)
@@ -238,7 +250,7 @@ class tPatchGNN(nn.Module):
 			x = x.permute(0, 2, 3, 1) # (B, N, M, F)
 
 			if(layer > 0): # residual addition
-				x = x_last + x 
+				x = x_last + x
 
 		### Output layer ###
 		if(self.outlayer == "CNN"):
@@ -253,10 +265,10 @@ class tPatchGNN(nn.Module):
 		return x
 
 	def forecasting(self, time_steps_to_predict, X, truth_time_steps, mask = None):
-		
-		""" 
+
+		"""
 		time_steps_to_predict (B, L) [0, 1]
-		X (B, M, L, N) 
+		X (B, M, L, N)
 		truth_time_steps (B, M, L, N) [0, 1]
 		mask (B, M, L, N)
 
@@ -288,7 +300,6 @@ class tPatchGNN(nn.Module):
 		h = torch.cat([h, te_pred], dim=-1) # (B, N, Lp, F)
 
 		# (B, N, Lp, F) -> (B, N, Lp, 1) -> (1, B, Lp, N)
-		outputs = self.decoder(h).squeeze(dim=-1).permute(0, 2, 1).unsqueeze(dim=0) 
+		outputs = self.decoder(h).squeeze(dim=-1).permute(0, 2, 1).unsqueeze(dim=0)
 
 		return outputs # (1, B, Lp, N)
-

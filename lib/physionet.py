@@ -250,9 +250,9 @@ def get_data_min_max(records, device):
 
 		time_max = torch.max(time_max, tt.max())
 
-	print('data_max:', data_max)
-	print('data_min:', data_min)
-	print('time_max:', time_max)
+	# print('data_max:', data_max)
+	# print('data_min:', data_min)
+	# print('time_max:', time_max)
 
 	return data_min, data_max, time_max
 
@@ -412,9 +412,18 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 	
 	return data_dict
 
+<<<<<<< HEAD
 # if __name__ == '__main__':
 # 	torch.manual_seed(1991)
 #
 # 	dataset = PhysioNet('../data/physionet', train=False, download=True)
 # 	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
 # 	print(dataloader.__iter__().next())
+=======
+if __name__ == '__main__':
+	torch.manual_seed(1991)
+
+	dataset = PhysioNet('./data/physionet', train=False, download=True)
+	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
+	print(dataloader.__iter__().next())
+>>>>>>> mahmoud_code_understanding
