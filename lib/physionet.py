@@ -1,14 +1,18 @@
 import os
 
+# import utils as utils
+#if running the experiement use 
 import lib.utils as utils
 import numpy as np
+import matplotlib.pyplot as plt
 import tarfile
 import torch
-from torch.nn.utils.rnn import pad_sequence
+from torch.nn.utils.rnn import pad_sequence #making all sequences in a batch the same length so they can be processed in parallel.
 from torch.utils.data import DataLoader
 from torchvision.datasets.utils import download_url
+# from utils import get_device
+#if running the experiement use 
 from lib.utils import get_device
-
 # Adapted from: https://github.com/rtqichen/time-series-datasets
 
 class PhysioNet(object):
@@ -183,40 +187,95 @@ class PhysioNet(object):
 		fmt_str += '    Reduce: {}\n'.format(self.reduce)
 		return fmt_str
 
-	def visualize(self, timesteps, data, mask, plot_name):
-		width = 15
-		height = 15
+	# def visualize(self, timesteps, data, mask, plot_name):
+	# 	width = 15
+	# 	height = 15
 
-		non_zero_attributes = (torch.sum(mask,0) > 2).numpy()
-		non_zero_idx = [i for i in range(len(non_zero_attributes)) if non_zero_attributes[i] == 1.]
-		n_non_zero = sum(non_zero_attributes)
+	# 	non_zero_attributes = (torch.sum(mask,0) > 2).numpy()
+	# 	non_zero_idx = [i for i in range(len(non_zero_attributes)) if non_zero_attributes[i] == 1.]
+	# 	n_non_zero = sum(non_zero_attributes)
+
+	# 	mask = mask[:, non_zero_idx]
+	# 	data = data[:, non_zero_idx]
+		
+	# 	params_non_zero = [self.params[i] for i in non_zero_idx]
+	# 	params_dict = {k: i for i, k in enumerate(params_non_zero)}
+
+	# 	n_col = 3
+	# 	n_row = n_non_zero // n_col + (n_non_zero % n_col > 0)
+	# 	fig, ax_list = plt.subplots(n_row, n_col, figsize=(width, height), facecolor='white')
+
+	# 	#for i in range(len(self.params)):
+	# 	for i in range(n_non_zero):
+	# 		param = params_non_zero[i]
+	# 		param_id = params_dict[param]
+
+	# 		tp_mask = mask[:,param_id].long()
+
+	# 		tp_cur_param = timesteps[tp_mask == 1.]
+	# 		data_cur_param = data[tp_mask == 1., param_id]
+
+	# 		ax_list[i // n_col, i % n_col].plot(tp_cur_param.numpy(), data_cur_param.numpy(),  marker='o') 
+	# 		ax_list[i // n_col, i % n_col].set_title(param)
+
+	# 	fig.tight_layout()
+	# 	fig.savefig(plot_name)
+	# 	plt.close(fig)
+
+	def visualize(self, timesteps, data, mask, plot_name):
+		import numpy as np
+		import matplotlib.pyplot as plt
+		import torch
+
+		width, height = 15, 15
+
+		# pick features that have >2 observed points
+		keep = (mask.sum(0) > 2)                       # torch.bool [D]
+		non_zero_idx = keep.nonzero(as_tuple=True)[0]   # LongTensor of indices
+		n_non_zero = int(keep.sum().item())
+
+		if n_non_zero == 0:
+			print("Nothing to plot: all features have ≤2 observations.")
+			return
 
 		mask = mask[:, non_zero_idx]
 		data = data[:, non_zero_idx]
-		
-		params_non_zero = [self.params[i] for i in non_zero_idx]
+
+		# needs self.params on the dataset instance
+		params_non_zero = [self.params[i] for i in non_zero_idx.tolist()]
 		params_dict = {k: i for i, k in enumerate(params_non_zero)}
 
 		n_col = 3
-		n_row = n_non_zero // n_col + (n_non_zero % n_col > 0)
+		n_row = n_non_zero // n_col + int(n_non_zero % n_col > 0)
 		fig, ax_list = plt.subplots(n_row, n_col, figsize=(width, height), facecolor='white')
 
-		#for i in range(len(self.params)):
+		# normalize axes to 2D grid
+		if isinstance(ax_list, np.ndarray):
+			axes = ax_list.reshape(n_row, n_col)
+		else:
+			axes = np.array([[ax_list]])
+
 		for i in range(n_non_zero):
 			param = params_non_zero[i]
 			param_id = params_dict[param]
 
-			tp_mask = mask[:,param_id].long()
+			tp_mask = mask[:, param_id].bool()
+			tp_cur_param = timesteps[tp_mask]
+			data_cur_param = data[tp_mask, param_id]
 
-			tp_cur_param = timesteps[tp_mask == 1.]
-			data_cur_param = data[tp_mask == 1., param_id]
+			r, c = divmod(i, n_col)
+			axes[r, c].plot(tp_cur_param.cpu().numpy(), data_cur_param.cpu().numpy(), marker='o')
+			axes[r, c].set_title(param)
 
-			ax_list[i // n_col, i % n_col].plot(tp_cur_param.numpy(), data_cur_param.numpy(),  marker='o') 
-			ax_list[i // n_col, i % n_col].set_title(param)
+		# hide unused subplots if any
+		for j in range(n_non_zero, n_row * n_col):
+			r, c = divmod(j, n_col)
+			axes[r, c].axis('off')
 
 		fig.tight_layout()
 		fig.savefig(plot_name)
 		plt.close(fig)
+
 
 def get_data_min_max(records, device):
 	inf = torch.Tensor([float("Inf")])[0].to(device)
@@ -453,7 +512,9 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 
 if __name__ == '__main__':
 	torch.manual_seed(1991)
+    # adjust first parameter based on the location of data folder ("root")
+	dataset = PhysioNet('./data/physionet', download=False)
+	sample = dataset[0]  # get the first dataset item
 
-	dataset = PhysioNet('./data/physionet', train=False, download=True)
-	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
-	print(dataloader.__iter__().next())
+	_, timesteps, data, mask = sample
+	dataset.visualize(timesteps, data, mask, "sample_plot.png")
