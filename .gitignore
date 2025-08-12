@@ -8,3 +8,6 @@ data/physionet/processed/
 data/physionet/raw/set-a/
 data/physionet/raw/set-b/
 data/physionet/raw/set-c/
+lib/test_adaptivepatching.py
+*.png
+**/__pycache__/

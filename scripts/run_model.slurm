@@ -35,7 +35,7 @@ python run_models.py \
 >>>>>>> mahmoud_code_understanding
 --lr 1e-3 \
 --patch_size 8 \
---stride 8 \
+--stride 4 \
 --nhead 1 \
 --tf_layer 1 \
 --nlayer 1 \
