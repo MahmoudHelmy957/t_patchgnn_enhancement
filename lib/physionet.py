@@ -38,6 +38,7 @@ class PhysioNet(object):
 	def __init__(self, root, download = False,
 		quantization = None, n_samples = None, device = torch.device("cpu")):
 
+
 		self.root = root
 		self.reduce = "average"
 		self.quantization = quantization
@@ -74,7 +75,7 @@ class PhysioNet(object):
 
 		for url in self.urls:
 			filename = url.rpartition('/')[2]
-			download_url(url, self.raw_folder, filename, None)
+			# download_url(url, self.raw_folder, filename, None)
 			tar = tarfile.open(os.path.join(self.raw_folder, filename), "r:gz")
 			tar.extractall(self.raw_folder)
 			tar.close()
@@ -510,11 +511,26 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 	
 	return data_dict
 
+<<<<<<< HEAD
+# if __name__ == '__main__':
+# 	torch.manual_seed(1991)
+#
+# 	dataset = PhysioNet('../data/physionet', train=False, download=True)
+# 	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
+# 	print(dataloader.__iter__().next())
+=======
 if __name__ == '__main__':
 	torch.manual_seed(1991)
     # adjust first parameter based on the location of data folder ("root")
 	dataset = PhysioNet('./data/physionet', download=False)
 	sample = dataset[0]  # get the first dataset item
 
+<<<<<<< HEAD
+	dataset = PhysioNet('./data/physionet', train=False, download=True)
+	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
+	print(dataloader.__iter__().next())
+>>>>>>> mahmoud_code_understanding
+=======
 	_, timesteps, data, mask = sample
 	dataset.visualize(timesteps, data, mask, "sample_plot.png")
+>>>>>>> mahmoud_code_understanding
