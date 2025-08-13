@@ -31,7 +31,7 @@ def parse_datasets(args, patch_ts=False, length_stat=False):
 		### list of tuples (record_id, tt, vals, mask) ###
 		if dataset_name == "physionet":
 			total_dataset = PhysioNet('./data/physionet', quantization = args.quantization,
-											download=True, n_samples = args.n, device = device)
+											download=False, n_samples = args.n, device = device)
 		elif dataset_name == "mimic":
 			total_dataset = MIMIC('./data/mimic/', n_samples = args.n, device = device)
 
