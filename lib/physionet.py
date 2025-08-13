@@ -187,45 +187,8 @@ class PhysioNet(object):
 		fmt_str += '    Reduce: {}\n'.format(self.reduce)
 		return fmt_str
 
-	# def visualize(self, timesteps, data, mask, plot_name):
-	# 	width = 15
-	# 	height = 15
-
-	# 	non_zero_attributes = (torch.sum(mask,0) > 2).numpy()
-	# 	non_zero_idx = [i for i in range(len(non_zero_attributes)) if non_zero_attributes[i] == 1.]
-	# 	n_non_zero = sum(non_zero_attributes)
-
-	# 	mask = mask[:, non_zero_idx]
-	# 	data = data[:, non_zero_idx]
-		
-	# 	params_non_zero = [self.params[i] for i in non_zero_idx]
-	# 	params_dict = {k: i for i, k in enumerate(params_non_zero)}
-
-	# 	n_col = 3
-	# 	n_row = n_non_zero // n_col + (n_non_zero % n_col > 0)
-	# 	fig, ax_list = plt.subplots(n_row, n_col, figsize=(width, height), facecolor='white')
-
-	# 	#for i in range(len(self.params)):
-	# 	for i in range(n_non_zero):
-	# 		param = params_non_zero[i]
-	# 		param_id = params_dict[param]
-
-	# 		tp_mask = mask[:,param_id].long()
-
-	# 		tp_cur_param = timesteps[tp_mask == 1.]
-	# 		data_cur_param = data[tp_mask == 1., param_id]
-
-	# 		ax_list[i // n_col, i % n_col].plot(tp_cur_param.numpy(), data_cur_param.numpy(),  marker='o') 
-	# 		ax_list[i // n_col, i % n_col].set_title(param)
-
-	# 	fig.tight_layout()
-	# 	fig.savefig(plot_name)
-	# 	plt.close(fig)
 
 	def visualize(self, timesteps, data, mask, plot_name):
-		import numpy as np
-		import matplotlib.pyplot as plt
-		import torch
 
 		width, height = 15, 15
 
@@ -329,7 +292,8 @@ def get_seq_length(args, records):
 
 	return max_input_len, max_pred_len, median_len
 
-def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_type = "train", 
+def patch_variable_time_collate_fn(batch, 
+								   args, device = torch.device("cpu"), data_type = "train", 
 	data_min = None, data_max = None, time_max = None):
 	"""
 	Expects a batch of time series data in the form of (record_id, tt, vals, mask) where
@@ -356,6 +320,7 @@ def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), da
 	"""
 
 	D = batch[0][2].shape[1] # Dimensionality of variables (features)
+	print("Physionet dataset number of features:",D)
  	# === Step 1: Combine all time points across the batch ===
     # Merge all time stamps from all samples, sort, and get unique indices
 	combined_tt, inverse_indices = torch.unique(torch.cat([ex[1] for ex in batch]), sorted=True, return_inverse=True)
@@ -510,11 +475,11 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 	
 	return data_dict
 
-if __name__ == '__main__':
-	torch.manual_seed(1991)
-    # adjust first parameter based on the location of data folder ("root")
-	dataset = PhysioNet('./data/physionet', download=False)
-	sample = dataset[0]  # get the first dataset item
+# if __name__ == '__main__':
+# 	torch.manual_seed(1991)
+#     # adjust first parameter based on the location of data folder ("root")
+# 	dataset = PhysioNet('./data/physionet', download=False)
+# 	sample = dataset[0]  # get the first dataset item
 
-	_, timesteps, data, mask = sample
-	dataset.visualize(timesteps, data, mask, "sample_plot.png")
+# 	_, timesteps, data, mask = sample
+# 	dataset.visualize(timesteps, data, mask, "sample_plot.png")

@@ -81,10 +81,19 @@ if __name__ == '__main__':
 
     ##################################################################
     data_obj = parse_datasets(args, patch_ts=True)
-    input_dim = data_obj["input_dim"]
+    for batch in data_obj["train_dataloader"]:
+        print("observed_data",batch["observed_data"].shape)
+        print("observed_tp",batch["observed_tp"].shape)
+        print("data_to_predict",batch["data_to_predict"].shape)
+        print("tp_to_predict",batch["tp_to_predict"].shape)
+        print("mask_predicted_data",batch["mask_predicted_data"].shape)
 
+        sys.exit(0) 
+    input_dim = data_obj["input_dim"]
+    
     ### Model setting ###
     args.ndim = input_dim
+
     model = tPatchGNN(args).to(args.device)
 
     ##################################################################
