@@ -5,9 +5,11 @@
 #SBATCH --partition=TEST              # Specify the correct partition (not stud)
 #SBATCH --gres=gpu:0                  # No GPU requested (gpu=0), change to 1 if needed
 
+source ~/venv310/bin/activate
 
 gpu="1"
-
+REPO="$HOME/Test/t_patchgnn_enhancement"
+cd "$REPO"
 
 
 python run_models.py \

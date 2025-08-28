@@ -1,0 +1,9 @@
+PID, device: 138294 cpu
+Total records: 12000
+Dataset n_samples: 12000 7200 2400 2400
+Physionet dataset number of features: 41
+observed_data torch.Size([16, 6, 8, 41])
+observed_tp torch.Size([16, 6, 8, 41])
+data_to_predict torch.Size([16, 1, 41])
+tp_to_predict torch.Size([16, 1])
+mask_predicted_data torch.Size([16, 1, 41])
