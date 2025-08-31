@@ -19,7 +19,6 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 # Make both the repo root and tPatchGNN visible to Python
 export PYTHONPATH="$HOME/Test/t-PatchGNN:$HOME/Test/t-PatchGNN/tPatchGNN:${PYTHONPATH-}"
 
-# 👇 Change CWD to tPatchGNN so '../data/physionet' points to repo_root/data/physionet
 cd $HOME/Test/t-PatchGNN/tPatchGNN
 
 python run_models.py \
