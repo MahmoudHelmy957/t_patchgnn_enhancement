@@ -1,26 +1,22 @@
 import os
 
-# import utils as utils
-#if running the experiement use 
 import lib.utils as utils
 import numpy as np
-import matplotlib.pyplot as plt
 import tarfile
 import torch
-from torch.nn.utils.rnn import pad_sequence #making all sequences in a batch the same length so they can be processed in parallel.
+from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader
 from torchvision.datasets.utils import download_url
-# from utils import get_device
-#if running the experiement use 
 from lib.utils import get_device
+
 # Adapted from: https://github.com/rtqichen/time-series-datasets
 
 class PhysioNet(object):
 
 	urls = [
-		'https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz',
-		'https://physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz',
-		'https://physionet.org/files/challenge-2012/1.0.0/set-c.tar.gz',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz?download',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz?download',
+		'https://physionet.org/files/challenge-2012/1.0.0/set-c.tar.gz?download',
 	]
 
 	params = [
@@ -56,6 +52,19 @@ class PhysioNet(object):
 			data_a = torch.load(os.path.join(self.processed_folder, self.set_a))
 			data_b = torch.load(os.path.join(self.processed_folder, self.set_b))
 			data_c = torch.load(os.path.join(self.processed_folder, self.set_c))
+		
+		# >>> Add this block (move loaded CPU tensors to the requested device)
+		def _move_records_to_device(records, dev):
+			moved = []
+			for (record_id, tt, vals, mask) in records:
+				moved.append((record_id, tt.to(dev), vals.to(dev), mask.to(dev)))
+			return moved
+		
+		if device != torch.device("cpu"):
+			data_a = _move_records_to_device(data_a, device)
+			data_b = _move_records_to_device(data_b, device)
+			data_c = _move_records_to_device(data_c, device)
+		# <<< End
 
 		self.data = data_a + data_b + data_c # a list with length 12000
 
@@ -187,58 +196,40 @@ class PhysioNet(object):
 		fmt_str += '    Reduce: {}\n'.format(self.reduce)
 		return fmt_str
 
-
 	def visualize(self, timesteps, data, mask, plot_name):
+		width = 15
+		height = 15
 
-		width, height = 15, 15
-
-		# pick features that have >2 observed points
-		keep = (mask.sum(0) > 2)                       # torch.bool [D]
-		non_zero_idx = keep.nonzero(as_tuple=True)[0]   # LongTensor of indices
-		n_non_zero = int(keep.sum().item())
-
-		if n_non_zero == 0:
-			print("Nothing to plot: all features have ≤2 observations.")
-			return
+		non_zero_attributes = (torch.sum(mask,0) > 2).numpy()
+		non_zero_idx = [i for i in range(len(non_zero_attributes)) if non_zero_attributes[i] == 1.]
+		n_non_zero = sum(non_zero_attributes)
 
 		mask = mask[:, non_zero_idx]
 		data = data[:, non_zero_idx]
-
-		# needs self.params on the dataset instance
-		params_non_zero = [self.params[i] for i in non_zero_idx.tolist()]
+		
+		params_non_zero = [self.params[i] for i in non_zero_idx]
 		params_dict = {k: i for i, k in enumerate(params_non_zero)}
 
 		n_col = 3
-		n_row = n_non_zero // n_col + int(n_non_zero % n_col > 0)
+		n_row = n_non_zero // n_col + (n_non_zero % n_col > 0)
 		fig, ax_list = plt.subplots(n_row, n_col, figsize=(width, height), facecolor='white')
 
-		# normalize axes to 2D grid
-		if isinstance(ax_list, np.ndarray):
-			axes = ax_list.reshape(n_row, n_col)
-		else:
-			axes = np.array([[ax_list]])
-
+		#for i in range(len(self.params)):
 		for i in range(n_non_zero):
 			param = params_non_zero[i]
 			param_id = params_dict[param]
 
-			tp_mask = mask[:, param_id].bool()
-			tp_cur_param = timesteps[tp_mask]
-			data_cur_param = data[tp_mask, param_id]
+			tp_mask = mask[:,param_id].long()
 
-			r, c = divmod(i, n_col)
-			axes[r, c].plot(tp_cur_param.cpu().numpy(), data_cur_param.cpu().numpy(), marker='o')
-			axes[r, c].set_title(param)
+			tp_cur_param = timesteps[tp_mask == 1.]
+			data_cur_param = data[tp_mask == 1., param_id]
 
-		# hide unused subplots if any
-		for j in range(n_non_zero, n_row * n_col):
-			r, c = divmod(j, n_col)
-			axes[r, c].axis('off')
+			ax_list[i // n_col, i % n_col].plot(tp_cur_param.numpy(), data_cur_param.numpy(),  marker='o') 
+			ax_list[i // n_col, i % n_col].set_title(param)
 
 		fig.tight_layout()
 		fig.savefig(plot_name)
 		plt.close(fig)
-
 
 def get_data_min_max(records, device):
 	inf = torch.Tensor([float("Inf")])[0].to(device)
@@ -271,9 +262,9 @@ def get_data_min_max(records, device):
 
 		time_max = torch.max(time_max, tt.max())
 
-	# print('data_max:', data_max)
-	# print('data_min:', data_min)
-	# print('time_max:', time_max)
+	print('data_max:', data_max)
+	print('data_min:', data_min)
+	print('time_max:', time_max)
 
 	return data_min, data_max, time_max
 
@@ -292,21 +283,13 @@ def get_seq_length(args, records):
 
 	return max_input_len, max_pred_len, median_len
 
-def patch_variable_time_collate_fn(batch, 
-								   args, device = torch.device("cpu"), data_type = "train", 
+def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_type = "train", 
 	data_min = None, data_max = None, time_max = None):
 	"""
 	Expects a batch of time series data in the form of (record_id, tt, vals, mask) where
 		- record_id is a patient id
 		- tt is a (T, ) tensor containing T time values of observations.
-		ex: tt = [0.0, 0.7, 2.0, 3.5] 
 		- vals is a (T, D) tensor containing observed values for D variables.
-		vals =
-		[[80, 120],    # t=0.0 → HR=80, BP=120
-		[82, 118],    # t=0.7 → HR=82, BP=118
-		[85, 122],    # t=2.0 → HR=85, BP=122
-		[90, 125]]    # t=3.5 → HR=90, BP=125
-		# shape (4,2) (columns are features)
 		- mask is a (T, D) tensor containing 1 where values were observed and 0 otherwise.
 	Returns:
 	Data form as input:
@@ -319,90 +302,57 @@ def patch_variable_time_collate_fn(batch,
 		flat_mask: (B, L_out, D) tensor containing 1 where values were observed and 0 otherwise.
 	"""
 
-	D = batch[0][2].shape[1] # Dimensionality of variables (features)
-	print("Physionet dataset number of features:",D)
- 	# === Step 1: Combine all time points across the batch ===
-    # Merge all time stamps from all samples, sort, and get unique indices
+	D = batch[0][2].shape[1]
 	combined_tt, inverse_indices = torch.unique(torch.cat([ex[1] for ex in batch]), sorted=True, return_inverse=True)
 
-    # === Step 2: Separate observed vs prediction times ===
-    # Count how many time points fall before the observation window (args.history)
 	# the number of observed time points 
-	n_observed_tp = torch.lt(combined_tt, args.history).sum() #[true,false,...]
-	observed_tp = combined_tt[:n_observed_tp] # (n_observed_tp, ) 
-	# here we cut based on the history value to form the observed time points
-	
+	n_observed_tp = torch.lt(combined_tt, args.history).sum()
+	observed_tp = combined_tt[:n_observed_tp] # (n_observed_tp, )
 
-	# === Step 3: Compute patch indices for observed timeline ===
-    # Hard segmentation: divide timeline into patches of length args.patch_size, moving with stride
 	patch_indices = []
 	st, ed = 0, args.patch_size
-	for i in range(args.npatch): # loop over number of patches we want to create
+	for i in range(args.npatch):
 		if(i == args.npatch-1):
-			# For the LAST patch:
-        	# include time steps where observed_tp is in [st, ed] (inclusive of ed)
 			inds = torch.where((observed_tp >= st) & (observed_tp <= ed))[0]
 		else:
-			# For all OTHER patches:
-        	# include time steps where observed_tp is in [st, ed) (exclusive of ed)
 			inds = torch.where((observed_tp >= st) & (observed_tp < ed))[0]
-
-		# save indices for this patch
-		patch_indices.append(inds) # here we are trying to get indices of the observed time points
-		# Slide the window forward by stride
+		patch_indices.append(inds)
 		st += args.stride
 		ed += args.stride
 
-	
-	# === Step 4: Allocate unified value and mask arrays ===
+	offset = 0
 	combined_vals = torch.zeros([len(batch), len(combined_tt), D]).to(device)
 	combined_mask = torch.zeros([len(batch), len(combined_tt), D]).to(device)
-
-	# Also keep placeholders for prediction target sequences
-	predicted_tp = []      # will hold each patient's prediction time steps
-	predicted_data = []    # will hold each patient's prediction values
-	predicted_mask = []    # will hold each patient's prediction masks
-	offset = 0
-	
-	# === Step 5: Populate combined tensors for each sample ===
+	predicted_tp = []
+	predicted_data = []
+	predicted_mask = [] 
 	for b, (record_id, tt, vals, mask) in enumerate(batch):
-
-    # ---- Align local time points to the global timeline ----
-    # inverse_indices tells us where each timestamp of this sample falls in combined_tt
-    # Here we extract the slice for this sample
-		#  Map each sample’s local time indices to the global combined_tt indices
 		indices = inverse_indices[offset:offset+len(tt)]
 		offset += len(tt)
-		# Place values and masks into the global tensors
 		combined_vals[b, indices] = vals
 		combined_mask[b, indices] = mask
-		# Split each sample into observed part vs prediction part
+
 		tmp_n_observed_tp = torch.lt(tt, args.history).sum()
 		predicted_tp.append(tt[tmp_n_observed_tp:])
 		predicted_data.append(vals[tmp_n_observed_tp:])
 		predicted_mask.append(mask[tmp_n_observed_tp:])
 
-
-	# === Step 6: Truncate global tensors to only observed portion ===
 	combined_tt = combined_tt[:n_observed_tp]
 	combined_vals = combined_vals[:, :n_observed_tp]
 	combined_mask = combined_mask[:, :n_observed_tp]
-	# Pad the predicted tensors to ensure they have the same length across the batch
 	predicted_tp = pad_sequence(predicted_tp, batch_first=True)
 	predicted_data = pad_sequence(predicted_data, batch_first=True)
 	predicted_mask = pad_sequence(predicted_mask, batch_first=True)
 
-	# === Step 7: Normalize values (if dataset requires it) ===
 	if(args.dataset != 'ushcn'):
 		combined_vals = utils.normalize_masked_data(combined_vals, combined_mask, 
 			att_min = data_min, att_max = data_max)
 		predicted_data = utils.normalize_masked_data(predicted_data, predicted_mask, 
 			att_min = data_min, att_max = data_max)
-	# Normalize time axis to [0, time_max]
+
 	combined_tt = utils.normalize_masked_tp(combined_tt, att_min = 0, att_max = time_max)
 	predicted_tp = utils.normalize_masked_tp(predicted_tp, att_min = 0, att_max = time_max)
-
-	# === Step 8: Package into dictionary ===	
+		
 	data_dict = {
 		"data": combined_vals, # (n_batch, T_o, D)
 		"time_steps": combined_tt, # (T_o, )
@@ -411,8 +361,7 @@ def patch_variable_time_collate_fn(batch,
 		"tp_to_predict": predicted_tp,
 		"mask_predicted_data": predicted_mask,
 		}
-	# === Step 9: Split observed sequence into patches ===
-    # This function handles creating (B, M, L_in, D) patch tensors
+
 	data_dict = utils.split_and_patch_batch(data_dict, args, n_observed_tp, patch_indices)
 
 	return data_dict
@@ -475,11 +424,9 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 	
 	return data_dict
 
-# if __name__ == '__main__':
-# 	torch.manual_seed(1991)
-#     # adjust first parameter based on the location of data folder ("root")
-# 	dataset = PhysioNet('./data/physionet', download=False)
-# 	sample = dataset[0]  # get the first dataset item
+if __name__ == '__main__':
+	torch.manual_seed(1991)
 
-# 	_, timesteps, data, mask = sample
-# 	dataset.visualize(timesteps, data, mask, "sample_plot.png")
+	dataset = PhysioNet('../data/physionet', train=False, download=True)
+	dataloader = DataLoader(dataset, batch_size=10, shuffle=True, collate_fn=variable_time_collate_fn)
+	print(dataloader.__iter__().next())
