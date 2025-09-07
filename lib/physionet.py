@@ -1,4 +1,5 @@
 import os
+import re
 
 import lib.utils as utils
 import numpy as np
@@ -37,7 +38,20 @@ class PhysioNet(object):
 		self.root = root
 		self.reduce = "average"
 		self.quantization = quantization
-
+# 		# If not provided, infer from processed filenames or fall back to 1.0
+# 		if self.quantization is None:
+# 			try:
+# 				os.makedirs(self.processed_folder, exist_ok=True)
+# 				for fn in os.listdir(self.processed_folder):
+# 					m = re.match(r"set-a_([0-9.]+)\.pt$", fn)
+# 					if m:
+# 						self.quantization = float(m.group(1))
+# 						break
+# 			except Exception:
+# 				pass
+# 			if self.quantization is None:
+# 				self.quantization = 1.0
+# ###################################
 		if download:
 			self.download()
 
