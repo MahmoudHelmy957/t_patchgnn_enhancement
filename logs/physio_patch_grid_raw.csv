@@ -1,0 +1,11 @@
+file,patch_size,stride,seed,dataset,epoch,MSE,RMSE,MAE,MAPE
+physio_STUD_patch_grid_239267_0.err,8,4,1,physionet,12,0.00644,0.08027,0.03921,109.11
+physio_STUD_patch_grid_239267_1.err,8,4,2,physionet,9,0.00645,0.08029,0.03847,111.13
+physio_STUD_patch_grid_239267_2.err,8,4,3,physionet,27,0.00659,0.0812,0.03837,48.28
+physio_STUD_patch_grid_239267_3.err,8,4,4,physionet,28,0.00632,0.07953,0.03832,103.0
+physio_STUD_patch_grid_239267_4.err,8,4,5,physionet,19,0.00666,0.08163,0.03893,64.95
+physio_STUD_patch_grid_239267_5.err,12,6,1,physionet,14,0.00643,0.08019,0.03862,78.2
+physio_STUD_patch_grid_239267_6.err,12,6,2,physionet,16,0.0065,0.08061,0.03874,82.53
+physio_STUD_patch_grid_239267_7.err,12,6,3,physionet,21,0.00634,0.07964,0.03836,57.32
+physio_STUD_patch_grid_239267_8.err,12,6,4,physionet,17,0.00646,0.08039,0.03852,95.35
+physio_STUD_patch_grid_239267_9.err,12,6,5,physionet,14,0.00635,0.07968,0.03859,74.61
