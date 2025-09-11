@@ -380,7 +380,103 @@ def patch_variable_time_collate_fn(batch, args, device = torch.device("cpu"), da
 
 	return data_dict
 
+#####################" multi scale" ######################
+def patch_variable_time_collate_fn_ms(
+    batch, args, device=torch.device("cpu"),
+    data_min=None, data_max=None, time_max=None,
+    scales_hours=(2.0, 8.0, 24.0), strides_hours=None, history_hours=24.0
+):
+    """
+    Multi-scale collate:
+      - builds a union timeline over the batch (1-D combined_tt),
+      - aligns values/masks to that timeline,
+      - normalizes data and time,
+      - returns per-scale patched tensors via utils.multiscale_split_and_patch_batch.
+    Output keys:
+      X_list, tt_list, mk_list, npatches, tp_to_predict, data_to_predict, mask_predicted_data
+    """
+    if strides_hours is None:
+        strides_hours = scales_hours
 
+    # Build union timeline across the batch (exactly like patch_variable_time_collate_fn)
+    D = batch[0][2].shape[1]
+    combined_tt, inverse_indices = torch.unique(
+        torch.cat([ex[1] for ex in batch]), sorted=True, return_inverse=True
+    )
+
+    # number of observed time points (< history)
+    n_observed_tp = torch.lt(combined_tt, args.history).sum()
+    observed_tt = combined_tt[:n_observed_tp]  # (T_obs,)
+
+    # Allocate aligned arrays (B, T_all, D), then trim to T_obs
+    B = len(batch)
+    combined_vals = torch.zeros([B, len(combined_tt), D], device=device)
+    combined_mask = torch.zeros_like(combined_vals)
+
+    predicted_tp_list, predicted_data_list, predicted_mask_list = [], [], []
+
+    offset = 0
+    for b, (record_id, tt, vals, mask) in enumerate(batch):
+        idx = inverse_indices[offset:offset + len(tt)]
+        offset += len(tt)
+        combined_vals[b, idx] = vals.to(device)
+        combined_mask[b, idx] = mask.to(device)
+
+        n_obs_cur = torch.lt(tt, args.history).sum()
+        predicted_tp_list.append(tt[n_obs_cur:])
+        predicted_data_list.append(vals[n_obs_cur:])
+        predicted_mask_list.append(mask[n_obs_cur:])
+
+    # Trim to observed window
+    combined_vals = combined_vals[:, :n_observed_tp]
+    combined_mask = combined_mask[:, :n_observed_tp]
+
+    # Pad future (prediction) parts
+    from torch.nn.utils.rnn import pad_sequence
+    predicted_tp   = pad_sequence(predicted_tp_list,   batch_first=True)
+    predicted_data = pad_sequence(predicted_data_list, batch_first=True)
+    predicted_mask = pad_sequence(predicted_mask_list, batch_first=True)
+
+    # Normalize values (same logic as original)
+    if args.dataset != 'ushcn':
+        combined_vals = utils.normalize_masked_data(
+            combined_vals, combined_mask, att_min=data_min, att_max=data_max
+        )
+        predicted_data = utils.normalize_masked_data(
+            predicted_data, predicted_mask, att_min=data_min, att_max=data_max
+        )
+
+    # Normalize time to [0,1] by time_max
+    observed_tt  = utils.normalize_masked_tp(observed_tt,  att_min=0, att_max=time_max)
+    predicted_tp = utils.normalize_masked_tp(predicted_tp, att_min=0, att_max=time_max)
+
+    # Build the "single" dict expected by split_and_patch_batch
+    single = {
+        "data": combined_vals,           # (B, T_obs, D)
+        "time_steps": observed_tt,       # (T_obs,)
+        "mask": combined_mask,           # (B, T_obs, D)
+        "data_to_predict": predicted_data,
+        "tp_to_predict": predicted_tp,
+        "mask_predicted_data": predicted_mask,
+    }
+
+    # Multi-scale split using union timeline (1-D)
+    ms = utils.multiscale_split_and_patch_batch(
+        data_dict=single, args=args, history_hours=float(history_hours),
+        scales_hours=list(scales_hours), strides_hours=list(strides_hours)
+    )
+
+    return {
+        "X_list": ms["X_list"], "tt_list": ms["tt_list"], "mk_list": ms["mk_list"],
+        "npatches": ms["npatches"],
+        "tp_to_predict": single["tp_to_predict"],
+        "data_to_predict": single["data_to_predict"],
+        "mask_predicted_data": single["mask_predicted_data"],
+    }
+
+
+
+##############################################################
 def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_type = "train", 
 	data_min = None, data_max = None, time_max = None):
 	"""

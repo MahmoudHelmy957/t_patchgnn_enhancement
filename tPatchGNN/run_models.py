@@ -21,6 +21,12 @@ from model.tPatchGNN import *
 
 parser = argparse.ArgumentParser('IMTS Forecasting')
 
+############################# multi scale ########################
+parser.add_argument('--multi_scales', type=str, default='', help='Comma list of patch sizes in hours, e.g. "2,8,24". Empty = single-scale.')
+parser.add_argument('--multi_strides', type=str, default='', help='Comma list of strides in hours. Empty = same as multi_scales.')
+parser.add_argument('--fusion', type=str, default='concat', choices=['concat','scale_attn'], help='Fusion method for multi-scale.')
+################################################
+
 parser.add_argument('--state', type=str, default='def')
 parser.add_argument('-n',  type=int, default=int(1e8), help="Size of the dataset")
 parser.add_argument('--hop', type=int, default=1, help="hops in GNN")
@@ -53,8 +59,12 @@ parser.add_argument('-td', '--te_dim', type=int, default=10, help="Number of uni
 parser.add_argument('-nd', '--node_dim', type=int, default=10, help="Number of units for node vectors")
 parser.add_argument('--gpu', type=str, default='0', help='which gpu to use.')
 
+
 args = parser.parse_args()
 args.npatch = int(np.ceil((args.history - args.patch_size) / args.stride)) + 1 # (window size for a patch)
+
+
+
 
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 file_name = os.path.basename(__file__)[:-3]
@@ -87,8 +97,31 @@ if __name__ == '__main__':
 	input_dim = data_obj["input_dim"]
 	
 	### Model setting ###
+	# args.ndim = input_dim
+	# model = tPatchGNN(args).to(args.device)
+
+	### multi scale ###
+	from copy import deepcopy
+	use_ms = (args.multi_scales not in (None, "", []))
 	args.ndim = input_dim
-	model = tPatchGNN(args).to(args.device)
+
+	if use_ms:
+		from model.multiscale_tpatchgnn import MultiScaleTPatchGNN
+		# Prime a batch to get per-scale npatches
+		first_batch = utils.get_next_batch(data_obj["train_dataloader"])
+		submodels = []
+		for M_k in first_batch["npatches"]:
+			sub_args = deepcopy(args)
+			sub_args.npatch = int(M_k)               # Linear(hid_dim * M_k -> hid_dim)
+			submodels.append(tPatchGNN(sub_args, supports=None, dropout=0).to(args.device))
+		model = MultiScaleTPatchGNN(
+			submodels=submodels,
+			te_dim=args.te_dim,
+			proj_dim=args.hid_dim,                   # project concat back to hid_dim
+			fusion=args.fusion
+		).to(args.device)
+	else:
+		model = tPatchGNN(args).to(args.device)
 
 	##################################################################
 	
@@ -113,48 +146,128 @@ if __name__ == '__main__':
 	logger.info(input_command)
 	logger.info(args)
 
-	optimizer = optim.Adam(model.parameters(), lr=args.lr)
+	# optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-	num_batches = data_obj["n_train_batches"] # n_sample / batch_size
+	# num_batches = data_obj["n_train_batches"] # n_sample / batch_size
+	# print("n_train_batches:", num_batches)
+
+	# best_val_mse = np.inf
+	# test_res = None
+	# for itr in range(args.epoch):
+	# 	st = time.time()
+
+	# 	### Training ###
+	# 	model.train()
+	# 	for _ in range(num_batches):
+	# 		optimizer.zero_grad()
+	# 		batch_dict = utils.get_next_batch(data_obj["train_dataloader"])
+	# 		train_res = compute_all_losses(model, batch_dict)
+	# 		train_res["loss"].backward()
+	# 		optimizer.step()
+
+	# 	### Validation ###
+	# 	model.eval()
+	# 	with torch.no_grad():
+	# 		val_res = evaluation(model, data_obj["val_dataloader"], data_obj["n_val_batches"])
+			
+	# 		### Testing ###
+	# 		if(val_res["mse"] < best_val_mse):
+	# 			best_val_mse = val_res["mse"]
+	# 			best_iter = itr
+	# 			test_res = evaluation(model, data_obj["test_dataloader"], data_obj["n_test_batches"])
+			
+	# 		logger.info('- Epoch {:03d}, ExpID {}'.format(itr, experimentID))
+	# 		logger.info("Train - Loss (one batch): {:.5f}".format(train_res["loss"].item()))
+	# 		logger.info("Val - Loss, MSE, RMSE, MAE, MAPE: {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.2f}%" \
+	# 			.format(val_res["loss"], val_res["mse"], val_res["rmse"], val_res["mae"], val_res["mape"]*100))
+	# 		if(test_res != None):
+	# 			logger.info("Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: {}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.2f}%" \
+	# 				.format(best_iter, test_res["loss"], test_res["mse"],\
+	# 		 		 test_res["rmse"], test_res["mae"], test_res["mape"]*100))
+	# 		logger.info("Time spent: {:.2f}s".format(time.time()-st))
+
+	# 	if(itr - best_iter >= args.patience):
+	# 		print("Exp has been early stopped!")
+	# 		sys.exit(0)
+
+	optimizer = optim.Adam(model.parameters(), lr=args.lr)
+	num_batches = data_obj["n_train_batches"]
 	print("n_train_batches:", num_batches)
+
+	def _masked_metrics(pred, tgt, msk):
+		diff = (pred - tgt)[msk.bool()]
+		mse = (diff ** 2).mean().item()
+		mae = diff.abs().mean().item()
+		rmse = np.sqrt(mse)
+		tgt_safe = tgt[msk.bool()].abs()
+		mape = float(torch.mean((diff.abs() / torch.clamp(tgt_safe, min=1e-8))).item())
+		return dict(loss=mse, mse=mse, rmse=rmse, mae=mae, mape=mape)
 
 	best_val_mse = np.inf
 	test_res = None
+	best_iter = 0
+
 	for itr in range(args.epoch):
 		st = time.time()
-
-		### Training ###
 		model.train()
 		for _ in range(num_batches):
 			optimizer.zero_grad()
 			batch_dict = utils.get_next_batch(data_obj["train_dataloader"])
-			train_res = compute_all_losses(model, batch_dict)
-			train_res["loss"].backward()
-			optimizer.step()
+			if use_ms:
+				out = model(batch_dict["X_list"], batch_dict["tt_list"], batch_dict["mk_list"], batch_dict["tp_to_predict"])
+				pred = out[0]  # (B, Lp, N)
+				tgt  = batch_dict["data_to_predict"]
+				msk  = batch_dict["mask_predicted_data"]
+				loss = ((pred - tgt)[msk.bool()] ** 2).mean()
+				loss.backward()
+				optimizer.step()
+				train_res = {"loss": loss.detach()}
+			else:
+				train_res = compute_all_losses(model, batch_dict)   # original path
+				train_res["loss"].backward()
+				optimizer.step()
 
-		### Validation ###
 		model.eval()
 		with torch.no_grad():
-			val_res = evaluation(model, data_obj["val_dataloader"], data_obj["n_val_batches"])
-			
-			### Testing ###
-			if(val_res["mse"] < best_val_mse):
-				best_val_mse = val_res["mse"]
-				best_iter = itr
-				test_res = evaluation(model, data_obj["test_dataloader"], data_obj["n_test_batches"])
-			
+			if use_ms:
+				# VAL
+				val_logs = []
+				for _ in range(data_obj["n_val_batches"]):
+					b = utils.get_next_batch(data_obj["val_dataloader"])
+					out = model(b["X_list"], b["tt_list"], b["mk_list"], b["tp_to_predict"])
+					pred = out[0]; tgt = b["data_to_predict"]; msk = b["mask_predicted_data"]
+					val_logs.append(_masked_metrics(pred, tgt, msk))
+				val_res = {k: float(np.mean([d[k] for d in val_logs])) for k in val_logs[0].keys()}
+
+				if val_res["mse"] < best_val_mse:
+					best_val_mse = val_res["mse"]; best_iter = itr
+					test_logs = []
+					for _ in range(data_obj["n_test_batches"]):
+						b = utils.get_next_batch(data_obj["test_dataloader"])
+						out = model(b["X_list"], b["tt_list"], b["mk_list"], b["tp_to_predict"])
+						pred = out[0]; tgt = b["data_to_predict"]; msk = b["mask_predicted_data"]
+						test_logs.append(_masked_metrics(pred, tgt, msk))
+					test_res = {k: float(np.mean([d[k] for d in test_logs])) for k in test_logs[0].keys()}
+			else:
+				val_res  = evaluation(model, data_obj["val_dataloader"],  data_obj["n_val_batches"])
+				if val_res["mse"] < best_val_mse:
+					best_val_mse = val_res["mse"]; best_iter = itr
+					test_res = evaluation(model, data_obj["test_dataloader"], data_obj["n_test_batches"])
+
 			logger.info('- Epoch {:03d}, ExpID {}'.format(itr, experimentID))
-			logger.info("Train - Loss (one batch): {:.5f}".format(train_res["loss"].item()))
-			logger.info("Val - Loss, MSE, RMSE, MAE, MAPE: {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.2f}%" \
+			logger.info("Train - Loss (one batch): {:.5f}".format(
+				train_res["loss"].item() if isinstance(train_res["loss"], torch.Tensor) else train_res["loss"]))
+			logger.info("Val - Loss, MSE, RMSE, MAE, MAPE: {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.2f}%"
 				.format(val_res["loss"], val_res["mse"], val_res["rmse"], val_res["mae"], val_res["mape"]*100))
-			if(test_res != None):
-				logger.info("Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: {}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.2f}%" \
-					.format(best_iter, test_res["loss"], test_res["mse"],\
-			 		 test_res["rmse"], test_res["mae"], test_res["mape"]*100))
+			if test_res is not None:
+				logger.info("Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: {}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.2f}%"
+					.format(best_iter, test_res["loss"], test_res["mse"], test_res["rmse"], test_res["mae"], test_res["mape"]*100))
 			logger.info("Time spent: {:.2f}s".format(time.time()-st))
 
-		if(itr - best_iter >= args.patience):
+		if (itr - best_iter) >= args.patience:
 			print("Exp has been early stopped!")
 			sys.exit(0)
+
+
 
 

@@ -128,8 +128,13 @@ class tPatchGNN(nn.Module):
 		if supports is None:
 			self.supports = []
 
-		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim).cuda(), requires_grad=True)
-		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N).cuda(), requires_grad=True)
+		# self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim).cuda(), requires_grad=True)
+		# self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N).cuda(), requires_grad=True)
+
+		#################### multi scale ##################################
+		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim, device=self.device), requires_grad=True)
+		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N, device=self.device), requires_grad=True)
+
 		# self.nodevec1 = nn.Parameter(
 		# 	torch.randn(self.N, nodevec_dim, device=self.device), requires_grad=True
 		# )
@@ -258,7 +263,24 @@ class tPatchGNN(nn.Module):
 			x = self.temporal_agg(x) # (B, N, hid_dim)
 
 		return x
-
+	####################" multi scale " ################################
+	def encode_from_patched(self, X, truth_time_steps, mask):
+		"""
+		X, truth_time_steps, mask: (B, M, L, N)
+		returns h: (B, N, hid_dim) right before decoding
+		"""
+		B, M, L_in, N = X.shape
+		self.batch_size = B
+		X_  = X.permute(0, 3, 1, 2).reshape(-1, L_in, 1)
+		tt_ = truth_time_steps.permute(0, 3, 1, 2).reshape(-1, L_in, 1)
+		mk_ = mask.permute(0, 3, 1, 2).reshape(-1, L_in, 1)
+		te_his = self.LearnableTE(tt_)
+		X_ = torch.cat([X_, te_his], dim=-1)
+		h = self.IMTS_Model(X_, mk_)  # (B, N, hid_dim)
+		return h
+	#########################################################
+	
+	
 	def forecasting(self, time_steps_to_predict, X, truth_time_steps, mask = None):
 		
 		""" 
