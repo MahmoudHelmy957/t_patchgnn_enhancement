@@ -26,16 +26,16 @@ def gaussian_log_likelihood(mu_2d, data_2d, obsrv_std, indices = None):
 	return log_prob
 
 
-def poisson_log_likelihood(masked_log_lambdas, masked_data, indices, int_lambdas):
-	# masked_log_lambdas and masked_data 
-	n_data_points = masked_data.size()[-1]
+# def poisson_log_likelihood(masked_log_lambdas, masked_data, indices, int_lambdas):
+# 	# masked_log_lambdas and masked_data 
+# 	n_data_points = masked_data.size()[-1]
 
-	if n_data_points > 0:
-		log_prob = torch.sum(masked_log_lambdas) - int_lambdas[indices]
-		#log_prob = log_prob / n_data_points
-	else:
-		log_prob = torch.zeros([1]).to(get_device(masked_data)).squeeze()
-	return log_prob
+# 	if n_data_points > 0:
+# 		log_prob = torch.sum(masked_log_lambdas) - int_lambdas[indices]
+# 		#log_prob = log_prob / n_data_points
+# 	else:
+# 		log_prob = torch.zeros([1]).to(get_device(masked_data)).squeeze()
+# 	return log_prob
 
 
 

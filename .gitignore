@@ -11,3 +11,13 @@ data/physionet/raw/set-c/
 lib/test_adaptivepatching.py
 *.png
 **/__pycache__/
+best*
+apt*
+lib/trials*
+/models*
+/lib/Adap*
+/lib/plots/
+General*
+Ada*
+Normal*
+

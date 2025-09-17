@@ -30,8 +30,8 @@ parser.add_argument('--nlayer', type=int, default=1, help="# of layer in TSmodel
 parser.add_argument('--epoch', type=int, default=1000, help="training epoches")
 parser.add_argument('--patience', type=int, default=10, help="patience for early stop")
 parser.add_argument('--history', type=int, default=24, help="number of hours (months for ushcn and ms for activity) as historical window")
-parser.add_argument('-ps', '--patch_size', type=float, default=24, help="window size for a patch")
-parser.add_argument('--stride', type=float, default=24, help="period stride for patch sliding")
+parser.add_argument('-ps', '--patch_size', type=float, default=12, help="window size for a patch")
+parser.add_argument('--stride', type=float, default=12, help="period stride for patch sliding")
 parser.add_argument('--logmode', type=str, default="a", help='File mode of logging.')
 
 parser.add_argument('--lr',  type=float, default=1e-3, help="Starting learning rate.")
@@ -55,7 +55,8 @@ parser.add_argument('--gpu', type=str, default='0', help='which gpu to use.')
 
 args = parser.parse_args()
 args.npatch = int(np.ceil((args.history - args.patch_size) / args.stride)) + 1 # (window size for a patch)
-
+print("npatch", args.npatch)
+# args.npatch=4
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 file_name = os.path.basename(__file__)[:-3]
 args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -81,19 +82,12 @@ if __name__ == '__main__':
 
     ##################################################################
     data_obj = parse_datasets(args, patch_ts=True)
-    for batch in data_obj["train_dataloader"]:
-        print("observed_data",batch["observed_data"].shape)
-        print("observed_tp",batch["observed_tp"].shape)
-        print("data_to_predict",batch["data_to_predict"].shape)
-        print("tp_to_predict",batch["tp_to_predict"].shape)
-        print("mask_predicted_data",batch["mask_predicted_data"].shape)
+ 
 
-        sys.exit(0) 
+
     input_dim = data_obj["input_dim"]
-    
     ### Model setting ###
     args.ndim = input_dim
-
     model = tPatchGNN(args).to(args.device)
 
     ##################################################################
@@ -136,7 +130,6 @@ if __name__ == '__main__':
 
     best_val_mse = np.inf
     test_res = None
-
     for itr in range(args.epoch):
         st = time.time()
 

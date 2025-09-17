@@ -5,9 +5,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-# from tPatchGNN.model.Transformer_EncDec import Encoder, EncoderLayer
-# from tPatchGNN.model.SelfAttention_Family import FullAttention, AttentionLayer
-
 import lib.utils as utils
 from lib.evaluation import *
 
@@ -129,10 +126,8 @@ class tPatchGNN(nn.Module):
 		if supports is None:
 			self.supports = []
 
-		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim), requires_grad=True)
-		#.cuda()
-		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N), requires_grad=True)
-		#.cuda()
+		self.nodevec1 = nn.Parameter(torch.randn(self.N, nodevec_dim).cuda(), requires_grad=True)
+		self.nodevec2 = nn.Parameter(torch.randn(nodevec_dim, self.N).cuda(), requires_grad=True)
 		self.nodevec_linear1 = nn.ModuleList()
 		self.nodevec_linear2 = nn.ModuleList()
 		self.nodevec_gate1 = nn.ModuleList()
@@ -174,7 +169,7 @@ class tPatchGNN(nn.Module):
 			nn.ReLU(inplace=True),
 			nn.Linear(args.hid_dim, 1)
 			)
-
+	#TODO I will use this function in my new code
 	def LearnableTE(self, tt):
 		# tt: (N*M*B, L, 1)
 		out1 = self.te_scale(tt)

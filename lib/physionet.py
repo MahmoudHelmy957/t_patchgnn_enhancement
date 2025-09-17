@@ -60,83 +60,83 @@ class PhysioNet(object):
 		self.data = data_a + data_b + data_c # a list with length 12000
 
 		if n_samples is not None:
-			print('Total records:', len(self.data))
+			# print('Total records:', len(self.data))
 			self.data = self.data[:n_samples]
 
-	def download(self):
-		if self._check_exists():
-			return
+	# def download(self):
+	# 	if self._check_exists():
+	# 		return
 
-		self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+	# 	self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-		os.makedirs(self.raw_folder, exist_ok=True)
-		os.makedirs(self.processed_folder, exist_ok=True)
+	# 	os.makedirs(self.raw_folder, exist_ok=True)
+	# 	os.makedirs(self.processed_folder, exist_ok=True)
 
-		for url in self.urls:
-			filename = url.rpartition('/')[2]
-			download_url(url, self.raw_folder, filename, None)
-			tar = tarfile.open(os.path.join(self.raw_folder, filename), "r:gz")
-			tar.extractall(self.raw_folder)
-			tar.close()
+	# 	for url in self.urls:
+	# 		filename = url.rpartition('/')[2]
+	# 		download_url(url, self.raw_folder, filename, None)
+	# 		tar = tarfile.open(os.path.join(self.raw_folder, filename), "r:gz")
+	# 		tar.extractall(self.raw_folder)
+	# 		tar.close()
 
-			print('Processing {}...'.format(filename))
+	# 		print('Processing {}...'.format(filename))
 
-			dirname = os.path.join(self.raw_folder, filename.split('.')[0])
-			patients = []
-			total = 0
-			for txtfile in os.listdir(dirname):
-				record_id = txtfile.split('.')[0]
-				with open(os.path.join(dirname, txtfile)) as f:
-					lines = f.readlines()
-					prev_time = 0
-					tt = [0.]
-					vals = [torch.zeros(len(self.params))]
-					mask = [torch.zeros(len(self.params))]
-					nobs = [torch.zeros(len(self.params))]
-					for l in lines[1:]:
-						total += 1
-						time, param, val = l.split(',')
-						# Time in hours
-						time = float(time.split(':')[0]) + float(time.split(':')[1]) / 60.
+	# 		dirname = os.path.join(self.raw_folder, filename.split('.')[0])
+	# 		patients = []
+	# 		total = 0
+	# 		for txtfile in os.listdir(dirname):
+	# 			record_id = txtfile.split('.')[0]
+	# 			with open(os.path.join(dirname, txtfile)) as f:
+	# 				lines = f.readlines()
+	# 				prev_time = 0
+	# 				tt = [0.]
+	# 				vals = [torch.zeros(len(self.params))]
+	# 				mask = [torch.zeros(len(self.params))]
+	# 				nobs = [torch.zeros(len(self.params))]
+	# 				for l in lines[1:]:
+	# 					total += 1
+	# 					time, param, val = l.split(',')
+	# 					# Time in hours
+	# 					time = float(time.split(':')[0]) + float(time.split(':')[1]) / 60.
 
-						# round up the time stamps (up to 6 min by default)
-						# used for speed -- we actually don't need to quantize it in Latent ODE
-						if(self.quantization != None and self.quantization != 0):
-							time = round(time / self.quantization) * self.quantization
+	# 					# round up the time stamps (up to 6 min by default)
+	# 					# used for speed -- we actually don't need to quantize it in Latent ODE
+	# 					if(self.quantization != None and self.quantization != 0):
+	# 						time = round(time / self.quantization) * self.quantization
 
-						if time != prev_time:
-							tt.append(time)
-							vals.append(torch.zeros(len(self.params)))
-							mask.append(torch.zeros(len(self.params)))
-							nobs.append(torch.zeros(len(self.params)))
-							prev_time = time
+	# 					if time != prev_time:
+	# 						tt.append(time)
+	# 						vals.append(torch.zeros(len(self.params)))
+	# 						mask.append(torch.zeros(len(self.params)))
+	# 						nobs.append(torch.zeros(len(self.params)))
+	# 						prev_time = time
 
-						if param in self.params_dict:
-							n_observations = nobs[-1][self.params_dict[param]]
-							if self.reduce == 'average' and n_observations > 0:
-								prev_val = vals[-1][self.params_dict[param]]
-								new_val = (prev_val * n_observations + float(val)) / (n_observations + 1)
-								vals[-1][self.params_dict[param]] = new_val
-							else:
-								vals[-1][self.params_dict[param]] = float(val)
-							mask[-1][self.params_dict[param]] = 1
-							nobs[-1][self.params_dict[param]] += 1
-						else:
-							assert (param == 'RecordID' or param ==''), 'Read unexpected param {}'.format(param)
+	# 					if param in self.params_dict:
+	# 						n_observations = nobs[-1][self.params_dict[param]]
+	# 						if self.reduce == 'average' and n_observations > 0:
+	# 							prev_val = vals[-1][self.params_dict[param]]
+	# 							new_val = (prev_val * n_observations + float(val)) / (n_observations + 1)
+	# 							vals[-1][self.params_dict[param]] = new_val
+	# 						else:
+	# 							vals[-1][self.params_dict[param]] = float(val)
+	# 						mask[-1][self.params_dict[param]] = 1
+	# 						nobs[-1][self.params_dict[param]] += 1
+	# 					else:
+	# 						assert (param == 'RecordID' or param ==''), 'Read unexpected param {}'.format(param)
 
-				tt = torch.tensor(tt).to(self.device)
-				vals = torch.stack(vals).to(self.device)
-				mask = torch.stack(mask).to(self.device)
+	# 			tt = torch.tensor(tt).to(self.device)
+	# 			vals = torch.stack(vals).to(self.device)
+	# 			mask = torch.stack(mask).to(self.device)
 
-				patients.append((record_id, tt, vals, mask))
+	# 			patients.append((record_id, tt, vals, mask))
 
-			torch.save(
-				patients,
-				os.path.join(self.processed_folder, 
-					filename.split('.')[0] + "_" + str(self.quantization) + '.pt')
-			)
+	# 		torch.save(
+	# 			patients,
+	# 			os.path.join(self.processed_folder, 
+	# 				filename.split('.')[0] + "_" + str(self.quantization) + '.pt')
+	# 		)
 				
-		print('Done!')
+	# 	print('Done!')
 
 	def _check_exists(self):
 		for url in self.urls:
@@ -188,56 +188,56 @@ class PhysioNet(object):
 		return fmt_str
 
 
-	def visualize(self, timesteps, data, mask, plot_name):
+	# def visualize(self, timesteps, data, mask, plot_name):
 
-		width, height = 15, 15
+	# 	width, height = 15, 15
 
-		# pick features that have >2 observed points
-		keep = (mask.sum(0) > 2)                       # torch.bool [D]
-		non_zero_idx = keep.nonzero(as_tuple=True)[0]   # LongTensor of indices
-		n_non_zero = int(keep.sum().item())
+	# 	# pick features that have >2 observed points
+	# 	keep = (mask.sum(0) > 2)                       # torch.bool [D]
+	# 	non_zero_idx = keep.nonzero(as_tuple=True)[0]   # LongTensor of indices
+	# 	n_non_zero = int(keep.sum().item())
 
-		if n_non_zero == 0:
-			print("Nothing to plot: all features have ≤2 observations.")
-			return
+	# 	if n_non_zero == 0:
+	# 		print("Nothing to plot: all features have ≤2 observations.")
+	# 		return
 
-		mask = mask[:, non_zero_idx]
-		data = data[:, non_zero_idx]
+	# 	mask = mask[:, non_zero_idx]
+	# 	data = data[:, non_zero_idx]
 
-		# needs self.params on the dataset instance
-		params_non_zero = [self.params[i] for i in non_zero_idx.tolist()]
-		params_dict = {k: i for i, k in enumerate(params_non_zero)}
+	# 	# needs self.params on the dataset instance
+	# 	params_non_zero = [self.params[i] for i in non_zero_idx.tolist()]
+	# 	params_dict = {k: i for i, k in enumerate(params_non_zero)}
 
-		n_col = 3
-		n_row = n_non_zero // n_col + int(n_non_zero % n_col > 0)
-		fig, ax_list = plt.subplots(n_row, n_col, figsize=(width, height), facecolor='white')
+	# 	n_col = 3
+	# 	n_row = n_non_zero // n_col + int(n_non_zero % n_col > 0)
+	# 	fig, ax_list = plt.subplots(n_row, n_col, figsize=(width, height), facecolor='white')
 
-		# normalize axes to 2D grid
-		if isinstance(ax_list, np.ndarray):
-			axes = ax_list.reshape(n_row, n_col)
-		else:
-			axes = np.array([[ax_list]])
+	# 	# normalize axes to 2D grid
+	# 	if isinstance(ax_list, np.ndarray):
+	# 		axes = ax_list.reshape(n_row, n_col)
+	# 	else:
+	# 		axes = np.array([[ax_list]])
 
-		for i in range(n_non_zero):
-			param = params_non_zero[i]
-			param_id = params_dict[param]
+	# 	for i in range(n_non_zero):
+	# 		param = params_non_zero[i]
+	# 		param_id = params_dict[param]
 
-			tp_mask = mask[:, param_id].bool()
-			tp_cur_param = timesteps[tp_mask]
-			data_cur_param = data[tp_mask, param_id]
+	# 		tp_mask = mask[:, param_id].bool()
+	# 		tp_cur_param = timesteps[tp_mask]
+	# 		data_cur_param = data[tp_mask, param_id]
 
-			r, c = divmod(i, n_col)
-			axes[r, c].plot(tp_cur_param.cpu().numpy(), data_cur_param.cpu().numpy(), marker='o')
-			axes[r, c].set_title(param)
+	# 		r, c = divmod(i, n_col)
+	# 		axes[r, c].plot(tp_cur_param.cpu().numpy(), data_cur_param.cpu().numpy(), marker='o')
+	# 		axes[r, c].set_title(param)
 
-		# hide unused subplots if any
-		for j in range(n_non_zero, n_row * n_col):
-			r, c = divmod(j, n_col)
-			axes[r, c].axis('off')
+	# 	# hide unused subplots if any
+	# 	for j in range(n_non_zero, n_row * n_col):
+	# 		r, c = divmod(j, n_col)
+	# 		axes[r, c].axis('off')
 
-		fig.tight_layout()
-		fig.savefig(plot_name)
-		plt.close(fig)
+	# 	fig.tight_layout()
+	# 	fig.savefig(plot_name)
+	# 	plt.close(fig)
 
 
 def get_data_min_max(records, device):
@@ -352,8 +352,7 @@ def patch_variable_time_collate_fn(batch,
 		# Slide the window forward by stride
 		st += args.stride
 		ed += args.stride
-
-	
+     	
 	# === Step 4: Allocate unified value and mask arrays ===
 	combined_vals = torch.zeros([len(batch), len(combined_tt), D]).to(device)
 	combined_mask = torch.zeros([len(batch), len(combined_tt), D]).to(device)
@@ -474,6 +473,7 @@ def variable_time_collate_fn(batch, args, device = torch.device("cpu"), data_typ
 			}
 	
 	return data_dict
+
 
 # if __name__ == '__main__':
 # 	torch.manual_seed(1991)
