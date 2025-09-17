@@ -1,0 +1,589 @@
+/home/ouass/Test/t-PatchGNN/tPatchGNN/run_models.py
+2025-09-17 01:09:09
+run_models.py --dataset physionet --history 24 --quantization 1.0 --hid_dim 64 --te_dim 10 --node_dim 10 --nlayer 1 --tf_layer 1 --nhead 1 --batch_size 32 --lr 1e-3 --patience 60 --epoch 600 --seed 2 --gpu 0 --multi_scales 2,8,24 --multi_strides 1,4,12 --fusion concat
+Namespace(multi_scales='2,8,24', multi_strides='1,4,12', fusion='concat', state='def', n=100000000, hop=1, nhead=1, tf_layer=1, nlayer=1, epoch=600, patience=60, history=24, patch_size=24, stride=24, logmode='a', lr=0.001, w_decay=0.0, batch_size=32, save='experiments/', load=None, seed=2, dataset='physionet', quantization=1.0, model='tPatchGNN', outlayer='Linear', hid_dim=64, te_dim=10, node_dim=10, gpu='0', npatch=1, device=device(type='cuda'), PID=2809082, ndim=41)
+- Epoch 000, ExpID 33669
+Train - Loss (one batch): 0.00569
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00492, 0.00492, 0.06991, 0.04193, 10939400.29%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 0, 0.00526, 0.00526, 0.07137, 0.04180, 10069937.09%
+Time spent: 41.32s
+- Epoch 001, ExpID 33669
+Train - Loss (one batch): 0.00448
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00487, 0.00487, 0.06954, 0.04260, 10318297.15%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 1, 0.00519, 0.00519, 0.07087, 0.04242, 9621797.62%
+Time spent: 40.65s
+- Epoch 002, ExpID 33669
+Train - Loss (one batch): 0.00364
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00504, 0.00504, 0.07076, 0.04391, 11777258.66%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 1, 0.00519, 0.00519, 0.07087, 0.04242, 9621797.62%
+Time spent: 36.02s
+- Epoch 003, ExpID 33669
+Train - Loss (one batch): 0.00403
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00448, 0.00448, 0.06667, 0.03896, 10558626.59%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 3, 0.00484, 0.00484, 0.06828, 0.03893, 9704146.01%
+Time spent: 40.71s
+- Epoch 004, ExpID 33669
+Train - Loss (one batch): 0.00338
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00457, 0.00457, 0.06734, 0.04145, 12799000.21%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 3, 0.00484, 0.00484, 0.06828, 0.03893, 9704146.01%
+Time spent: 36.07s
+- Epoch 005, ExpID 33669
+Train - Loss (one batch): 0.00574
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00429, 0.00429, 0.06524, 0.03708, 9590484.72%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 5, 0.00468, 0.00468, 0.06718, 0.03716, 8786389.71%
+Time spent: 40.83s
+- Epoch 006, ExpID 33669
+Train - Loss (one batch): 0.00404
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00446, 0.00446, 0.06653, 0.03913, 9902517.23%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 5, 0.00468, 0.00468, 0.06718, 0.03716, 8786389.71%
+Time spent: 36.17s
+- Epoch 007, ExpID 33669
+Train - Loss (one batch): 0.00305
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00434, 0.00434, 0.06560, 0.03791, 9665513.96%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 5, 0.00468, 0.00468, 0.06718, 0.03716, 8786389.71%
+Time spent: 36.19s
+- Epoch 008, ExpID 33669
+Train - Loss (one batch): 0.00363
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00463, 0.00463, 0.06779, 0.04074, 12736114.41%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 5, 0.00468, 0.00468, 0.06718, 0.03716, 8786389.71%
+Time spent: 36.17s
+- Epoch 009, ExpID 33669
+Train - Loss (one batch): 0.00446
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00411, 0.00411, 0.06389, 0.03604, 11072300.53%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 9, 0.00445, 0.00445, 0.06542, 0.03608, 10399343.10%
+Time spent: 40.82s
+- Epoch 010, ExpID 33669
+Train - Loss (one batch): 0.00287
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00439, 0.00439, 0.06599, 0.03897, 10271697.83%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 9, 0.00445, 0.00445, 0.06542, 0.03608, 10399343.10%
+Time spent: 36.16s
+- Epoch 011, ExpID 33669
+Train - Loss (one batch): 0.00474
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00436, 0.00436, 0.06583, 0.03828, 9822679.88%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 9, 0.00445, 0.00445, 0.06542, 0.03608, 10399343.10%
+Time spent: 36.13s
+- Epoch 012, ExpID 33669
+Train - Loss (one batch): 0.00278
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00420, 0.00420, 0.06455, 0.03787, 11072073.17%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 9, 0.00445, 0.00445, 0.06542, 0.03608, 10399343.10%
+Time spent: 36.18s
+- Epoch 013, ExpID 33669
+Train - Loss (one batch): 0.00412
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00408, 0.00408, 0.06361, 0.03634, 10884894.89%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 40.81s
+- Epoch 014, ExpID 33669
+Train - Loss (one batch): 0.00497
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00435, 0.00435, 0.06575, 0.03926, 9428701.67%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.16s
+- Epoch 015, ExpID 33669
+Train - Loss (one batch): 0.00423
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00433, 0.00433, 0.06555, 0.03861, 10969650.76%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.10s
+- Epoch 016, ExpID 33669
+Train - Loss (one batch): 0.00471
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00417, 0.00417, 0.06434, 0.03618, 10146855.65%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.18s
+- Epoch 017, ExpID 33669
+Train - Loss (one batch): 0.00313
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00423, 0.00423, 0.06477, 0.03772, 9896667.79%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.21s
+- Epoch 018, ExpID 33669
+Train - Loss (one batch): 0.00349
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00422, 0.00422, 0.06469, 0.03735, 10546458.96%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.27s
+- Epoch 019, ExpID 33669
+Train - Loss (one batch): 0.00457
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00419, 0.00419, 0.06451, 0.03750, 12204773.04%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.28s
+- Epoch 020, ExpID 33669
+Train - Loss (one batch): 0.00384
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00408, 0.00408, 0.06365, 0.03589, 10492199.75%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.27s
+- Epoch 021, ExpID 33669
+Train - Loss (one batch): 0.00400
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00458, 0.00458, 0.06745, 0.04067, 10457336.25%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.28s
+- Epoch 022, ExpID 33669
+Train - Loss (one batch): 0.00386
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00434, 0.00434, 0.06567, 0.03863, 10041938.12%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.27s
+- Epoch 023, ExpID 33669
+Train - Loss (one batch): 0.00444
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00419, 0.00419, 0.06449, 0.03709, 8613709.56%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.21s
+- Epoch 024, ExpID 33669
+Train - Loss (one batch): 0.00327
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00436, 0.00436, 0.06577, 0.03904, 11080945.76%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.26s
+- Epoch 025, ExpID 33669
+Train - Loss (one batch): 0.00418
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00437, 0.00437, 0.06586, 0.03864, 10828993.33%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.25s
+- Epoch 026, ExpID 33669
+Train - Loss (one batch): 0.00500
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00437, 0.00437, 0.06583, 0.03827, 10435497.04%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.26s
+- Epoch 027, ExpID 33669
+Train - Loss (one batch): 0.00536
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00410, 0.00410, 0.06381, 0.03592, 10754192.09%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.34s
+- Epoch 028, ExpID 33669
+Train - Loss (one batch): 0.00280
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00421, 0.00421, 0.06467, 0.03762, 12220525.18%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.24s
+- Epoch 029, ExpID 33669
+Train - Loss (one batch): 0.00415
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00409, 0.00409, 0.06373, 0.03657, 9581814.20%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.26s
+- Epoch 030, ExpID 33669
+Train - Loss (one batch): 0.00341
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00446, 0.00446, 0.06659, 0.03984, 10267412.77%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.28s
+- Epoch 031, ExpID 33669
+Train - Loss (one batch): 0.00348
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00421, 0.00421, 0.06466, 0.03667, 10917891.79%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.29s
+- Epoch 032, ExpID 33669
+Train - Loss (one batch): 0.00361
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00437, 0.00437, 0.06588, 0.03955, 10663611.66%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.26s
+- Epoch 033, ExpID 33669
+Train - Loss (one batch): 0.00343
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00424, 0.00424, 0.06490, 0.03790, 10068295.47%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.24s
+- Epoch 034, ExpID 33669
+Train - Loss (one batch): 0.00309
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00419, 0.00419, 0.06449, 0.03809, 12897833.47%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 13, 0.00443, 0.00443, 0.06529, 0.03636, 10130939.09%
+Time spent: 36.24s
+- Epoch 035, ExpID 33669
+Train - Loss (one batch): 0.00345
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00405, 0.00405, 0.06343, 0.03646, 10075430.45%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 35, 0.00439, 0.00439, 0.06490, 0.03652, 9260303.46%
+Time spent: 40.91s
+- Epoch 036, ExpID 33669
+Train - Loss (one batch): 0.00387
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00411, 0.00411, 0.06389, 0.03761, 10909279.47%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 35, 0.00439, 0.00439, 0.06490, 0.03652, 9260303.46%
+Time spent: 36.28s
+- Epoch 037, ExpID 33669
+Train - Loss (one batch): 0.00475
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00408, 0.00408, 0.06360, 0.03620, 9682453.57%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 35, 0.00439, 0.00439, 0.06490, 0.03652, 9260303.46%
+Time spent: 36.26s
+- Epoch 038, ExpID 33669
+Train - Loss (one batch): 0.00346
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00440, 0.00440, 0.06609, 0.03976, 11385717.48%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 35, 0.00439, 0.00439, 0.06490, 0.03652, 9260303.46%
+Time spent: 36.28s
+- Epoch 039, ExpID 33669
+Train - Loss (one batch): 0.00408
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00429, 0.00429, 0.06526, 0.03845, 10445440.17%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 35, 0.00439, 0.00439, 0.06490, 0.03652, 9260303.46%
+Time spent: 36.21s
+- Epoch 040, ExpID 33669
+Train - Loss (one batch): 0.00407
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00441, 0.00441, 0.06621, 0.03945, 10223591.58%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 35, 0.00439, 0.00439, 0.06490, 0.03652, 9260303.46%
+Time spent: 36.24s
+- Epoch 041, ExpID 33669
+Train - Loss (one batch): 0.00392
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00402, 0.00402, 0.06313, 0.03567, 10110429.45%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 40.91s
+- Epoch 042, ExpID 33669
+Train - Loss (one batch): 0.00527
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00402, 0.00402, 0.06317, 0.03588, 11129377.52%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.29s
+- Epoch 043, ExpID 33669
+Train - Loss (one batch): 0.00413
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00413, 0.00413, 0.06402, 0.03655, 11133845.09%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.23s
+- Epoch 044, ExpID 33669
+Train - Loss (one batch): 0.00401
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00448, 0.00448, 0.06668, 0.04015, 10956390.55%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.12s
+- Epoch 045, ExpID 33669
+Train - Loss (one batch): 0.00392
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00427, 0.00427, 0.06517, 0.03850, 9571699.75%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.13s
+- Epoch 046, ExpID 33669
+Train - Loss (one batch): 0.00618
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00428, 0.00428, 0.06520, 0.03736, 9657804.70%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.13s
+- Epoch 047, ExpID 33669
+Train - Loss (one batch): 0.00388
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00413, 0.00413, 0.06404, 0.03690, 9677143.49%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.17s
+- Epoch 048, ExpID 33669
+Train - Loss (one batch): 0.00324
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00410, 0.00410, 0.06378, 0.03621, 9499154.80%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.13s
+- Epoch 049, ExpID 33669
+Train - Loss (one batch): 0.00337
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00432, 0.00432, 0.06550, 0.03926, 10900590.82%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.15s
+- Epoch 050, ExpID 33669
+Train - Loss (one batch): 0.00311
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00405, 0.00405, 0.06343, 0.03591, 9380705.00%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.17s
+- Epoch 051, ExpID 33669
+Train - Loss (one batch): 0.00373
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00418, 0.00418, 0.06441, 0.03804, 10303352.57%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.13s
+- Epoch 052, ExpID 33669
+Train - Loss (one batch): 0.00336
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00402, 0.00402, 0.06316, 0.03563, 9914545.70%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.14s
+- Epoch 053, ExpID 33669
+Train - Loss (one batch): 0.00356
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00416, 0.00416, 0.06428, 0.03723, 10521815.66%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.08s
+- Epoch 054, ExpID 33669
+Train - Loss (one batch): 0.00365
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00410, 0.00410, 0.06383, 0.03655, 9078897.93%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.16s
+- Epoch 055, ExpID 33669
+Train - Loss (one batch): 0.00374
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00458, 0.00458, 0.06743, 0.04109, 10005348.65%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 41, 0.00436, 0.00436, 0.06472, 0.03571, 9378193.33%
+Time spent: 36.16s
+- Epoch 056, ExpID 33669
+Train - Loss (one batch): 0.00379
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00400, 0.00400, 0.06302, 0.03520, 10210155.27%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 40.79s
+- Epoch 057, ExpID 33669
+Train - Loss (one batch): 0.00327
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00417, 0.00417, 0.06434, 0.03752, 9911868.93%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 058, ExpID 33669
+Train - Loss (one batch): 0.00383
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00423, 0.00423, 0.06482, 0.03820, 9775580.12%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.17s
+- Epoch 059, ExpID 33669
+Train - Loss (one batch): 0.00395
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00432, 0.00432, 0.06551, 0.03878, 9440189.64%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.17s
+- Epoch 060, ExpID 33669
+Train - Loss (one batch): 0.00393
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00404, 0.00404, 0.06331, 0.03650, 10816280.85%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 061, ExpID 33669
+Train - Loss (one batch): 0.00567
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00404, 0.00404, 0.06328, 0.03524, 10126122.90%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.13s
+- Epoch 062, ExpID 33669
+Train - Loss (one batch): 0.00377
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00434, 0.00434, 0.06567, 0.03902, 10024731.25%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.17s
+- Epoch 063, ExpID 33669
+Train - Loss (one batch): 0.00370
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00410, 0.00410, 0.06380, 0.03654, 12065964.97%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 064, ExpID 33669
+Train - Loss (one batch): 0.00428
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00415, 0.00415, 0.06422, 0.03803, 10079972.05%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 065, ExpID 33669
+Train - Loss (one batch): 0.00316
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00422, 0.00422, 0.06470, 0.03812, 9969182.69%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 066, ExpID 33669
+Train - Loss (one batch): 0.00373
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00425, 0.00425, 0.06493, 0.03826, 9922011.25%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.11s
+- Epoch 067, ExpID 33669
+Train - Loss (one batch): 0.00382
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00426, 0.00426, 0.06502, 0.03839, 11132880.12%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 068, ExpID 33669
+Train - Loss (one batch): 0.00419
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00408, 0.00408, 0.06362, 0.03641, 9803416.85%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 069, ExpID 33669
+Train - Loss (one batch): 0.00354
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00407, 0.00407, 0.06354, 0.03564, 9824677.42%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.17s
+- Epoch 070, ExpID 33669
+Train - Loss (one batch): 0.00315
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00430, 0.00430, 0.06532, 0.03849, 11676671.60%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 071, ExpID 33669
+Train - Loss (one batch): 0.00508
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00425, 0.00425, 0.06501, 0.03828, 10041604.57%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 072, ExpID 33669
+Train - Loss (one batch): 0.00345
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00412, 0.00412, 0.06397, 0.03648, 9729746.58%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.14s
+- Epoch 073, ExpID 33669
+Train - Loss (one batch): 0.00343
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00434, 0.00434, 0.06561, 0.03839, 9504463.74%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 074, ExpID 33669
+Train - Loss (one batch): 0.00397
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00439, 0.00439, 0.06604, 0.03983, 10593709.22%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.11s
+- Epoch 075, ExpID 33669
+Train - Loss (one batch): 0.00269
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00420, 0.00420, 0.06458, 0.03654, 9729944.71%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.14s
+- Epoch 076, ExpID 33669
+Train - Loss (one batch): 0.00449
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00432, 0.00432, 0.06549, 0.03840, 8843525.33%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 077, ExpID 33669
+Train - Loss (one batch): 0.00405
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00420, 0.00420, 0.06455, 0.03755, 10986518.07%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 078, ExpID 33669
+Train - Loss (one batch): 0.00278
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00411, 0.00411, 0.06388, 0.03653, 9659497.98%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.18s
+- Epoch 079, ExpID 33669
+Train - Loss (one batch): 0.00315
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00423, 0.00423, 0.06484, 0.03839, 10359709.64%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.10s
+- Epoch 080, ExpID 33669
+Train - Loss (one batch): 0.00362
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00411, 0.00411, 0.06387, 0.03617, 9294253.55%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 081, ExpID 33669
+Train - Loss (one batch): 0.00313
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00444, 0.00444, 0.06643, 0.03958, 10912265.97%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.09s
+- Epoch 082, ExpID 33669
+Train - Loss (one batch): 0.00361
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00424, 0.00424, 0.06487, 0.03796, 9927355.99%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.17s
+- Epoch 083, ExpID 33669
+Train - Loss (one batch): 0.00438
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00412, 0.00412, 0.06399, 0.03623, 9659031.59%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 084, ExpID 33669
+Train - Loss (one batch): 0.00333
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00422, 0.00422, 0.06475, 0.03707, 11338404.41%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 085, ExpID 33669
+Train - Loss (one batch): 0.00299
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00420, 0.00420, 0.06459, 0.03705, 10032785.03%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.10s
+- Epoch 086, ExpID 33669
+Train - Loss (one batch): 0.00317
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00426, 0.00426, 0.06504, 0.03732, 9500112.12%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.11s
+- Epoch 087, ExpID 33669
+Train - Loss (one batch): 0.00425
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00420, 0.00420, 0.06455, 0.03697, 9561617.15%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.08s
+- Epoch 088, ExpID 33669
+Train - Loss (one batch): 0.00437
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00422, 0.00422, 0.06473, 0.03737, 9886935.07%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.06s
+- Epoch 089, ExpID 33669
+Train - Loss (one batch): 0.00387
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00413, 0.00413, 0.06404, 0.03622, 9673816.72%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.07s
+- Epoch 090, ExpID 33669
+Train - Loss (one batch): 0.00537
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00438, 0.00438, 0.06592, 0.03923, 10782619.51%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.09s
+- Epoch 091, ExpID 33669
+Train - Loss (one batch): 0.00319
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00414, 0.00414, 0.06407, 0.03649, 9999131.00%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.07s
+- Epoch 092, ExpID 33669
+Train - Loss (one batch): 0.00326
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00429, 0.00429, 0.06525, 0.03747, 10876246.73%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.10s
+- Epoch 093, ExpID 33669
+Train - Loss (one batch): 0.00332
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00414, 0.00414, 0.06411, 0.03594, 10184991.46%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.10s
+- Epoch 094, ExpID 33669
+Train - Loss (one batch): 0.00365
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00413, 0.00413, 0.06404, 0.03681, 10309392.36%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.00s
+- Epoch 095, ExpID 33669
+Train - Loss (one batch): 0.00278
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00419, 0.00419, 0.06448, 0.03689, 10395474.79%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.13s
+- Epoch 096, ExpID 33669
+Train - Loss (one batch): 0.00477
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00443, 0.00443, 0.06631, 0.03947, 11006953.83%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.14s
+- Epoch 097, ExpID 33669
+Train - Loss (one batch): 0.00333
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00414, 0.00414, 0.06409, 0.03616, 9652751.53%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.07s
+- Epoch 098, ExpID 33669
+Train - Loss (one batch): 0.00312
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00431, 0.00431, 0.06539, 0.03772, 9764137.72%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.11s
+- Epoch 099, ExpID 33669
+Train - Loss (one batch): 0.00254
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00417, 0.00417, 0.06436, 0.03683, 11451303.70%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.11s
+- Epoch 100, ExpID 33669
+Train - Loss (one batch): 0.00365
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00431, 0.00431, 0.06539, 0.03783, 11077787.43%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.09s
+- Epoch 101, ExpID 33669
+Train - Loss (one batch): 0.00337
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00431, 0.00431, 0.06543, 0.03751, 9771538.71%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.08s
+- Epoch 102, ExpID 33669
+Train - Loss (one batch): 0.00301
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00424, 0.00424, 0.06487, 0.03726, 9502353.46%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 103, ExpID 33669
+Train - Loss (one batch): 0.00354
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00433, 0.00433, 0.06554, 0.03736, 10229010.26%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 104, ExpID 33669
+Train - Loss (one batch): 0.00230
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00415, 0.00415, 0.06411, 0.03588, 10002624.98%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.14s
+- Epoch 105, ExpID 33669
+Train - Loss (one batch): 0.00339
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00427, 0.00427, 0.06506, 0.03663, 10042612.35%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.10s
+- Epoch 106, ExpID 33669
+Train - Loss (one batch): 0.00342
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00428, 0.00428, 0.06520, 0.03762, 9912672.15%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 107, ExpID 33669
+Train - Loss (one batch): 0.00290
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00414, 0.00414, 0.06401, 0.03641, 10773487.63%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 108, ExpID 33669
+Train - Loss (one batch): 0.00345
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00422, 0.00422, 0.06467, 0.03681, 10351987.21%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.13s
+- Epoch 109, ExpID 33669
+Train - Loss (one batch): 0.00409
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00424, 0.00424, 0.06486, 0.03708, 9440644.79%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.15s
+- Epoch 110, ExpID 33669
+Train - Loss (one batch): 0.00308
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00438, 0.00438, 0.06595, 0.03797, 10186952.85%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.16s
+- Epoch 111, ExpID 33669
+Train - Loss (one batch): 0.00193
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00414, 0.00414, 0.06410, 0.03549, 8910192.41%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.07s
+- Epoch 112, ExpID 33669
+Train - Loss (one batch): 0.00298
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00421, 0.00421, 0.06459, 0.03581, 8939126.90%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.11s
+- Epoch 113, ExpID 33669
+Train - Loss (one batch): 0.00288
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00444, 0.00444, 0.06635, 0.03887, 9963478.17%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
+- Epoch 114, ExpID 33669
+Train - Loss (one batch): 0.00340
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00432, 0.00432, 0.06549, 0.03761, 10013870.26%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.14s
+- Epoch 115, ExpID 33669
+Train - Loss (one batch): 0.00321
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00415, 0.00415, 0.06417, 0.03560, 9199330.58%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.14s
+- Epoch 116, ExpID 33669
+Train - Loss (one batch): 0.00253
+Val - Loss, MSE, RMSE, MAE, MAPE: 0.00419, 0.00419, 0.06444, 0.03586, 9464883.53%
+Test - Best epoch, Loss, MSE, RMSE, MAE, MAPE: 56, 0.00432, 0.00432, 0.06438, 0.03520, 9601989.14%
+Time spent: 36.12s
